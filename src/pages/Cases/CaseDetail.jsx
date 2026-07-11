@@ -37,8 +37,8 @@ function EditableField({ label, name, value, onChange, editing, type = 'text', p
           className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors [color-scheme:light] dark:[color-scheme:dark]"
         />
       ) : (
-        <p className="text-sm text-gray-800 dark:text-gray-200 min-h-[34px] flex items-center">
-          {value || <span className="text-gray-400 dark:text-gray-600 italic">غير مُحدّد</span>}
+        <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100 min-h-[34px] flex items-center">
+          {value || <span className="text-gray-400 dark:text-gray-500 text-sm italic font-normal">غير مُحدّد</span>}
         </p>
       )}
     </div>
@@ -71,8 +71,8 @@ function EditableSelect({ label, name, value, onChange, editing, options }) {
           )}
         </select>
       ) : (
-        <p className="text-sm text-gray-800 dark:text-gray-200 min-h-[34px] flex items-center">
-          {display || <span className="text-gray-400 italic">غير مُحدّد</span>}
+        <p className="text-[15px] font-medium text-gray-900 dark:text-gray-100 min-h-[34px] flex items-center">
+          {display || <span className="text-gray-400 dark:text-gray-500 text-sm italic font-normal">غير مُحدّد</span>}
         </p>
       )}
     </div>
@@ -182,22 +182,22 @@ export default function CaseDetail() {
       )}
 
       {/* ─── رأس الصفحة ─── */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <div className="flex items-center gap-3">
+      <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-5 p-6 mb-8 bg-gradient-to-l from-orange-50/50 via-white to-white dark:from-orange-500/5 dark:via-gray-900/50 dark:to-gray-900/50 border border-orange-100/50 dark:border-orange-500/10 rounded-2xl shadow-sm">
+        <div className="flex items-center gap-4">
           <Link
             to="/cases"
-            className="flex items-center justify-center w-9 h-9 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-orange-500 hover:border-orange-300 dark:hover:border-orange-600 transition-all shrink-0"
+            className="flex items-center justify-center w-10 h-10 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-orange-500 hover:border-orange-300 dark:hover:border-orange-500/50 hover:shadow-sm transition-all shrink-0"
           >
-            <ArrowRight size={18} />
+            <ArrowRight size={20} />
           </Link>
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white truncate max-w-[350px]">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white truncate max-w-[400px] tracking-tight">
               {caseData?.title}
             </h1>
-            <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <div className="flex items-center gap-2.5 mt-2 flex-wrap">
               <StatusBadge value={caseData?.status} />
-              <span className="text-xs text-gray-400">·</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">{caseData?.type}</span>
+              <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></span>
+              <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{caseData?.type}</span>
             </div>
           </div>
         </div>
@@ -239,10 +239,10 @@ export default function CaseDetail() {
       <div className="space-y-5">
 
         {/* البيانات الأساسية */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/80 rounded-2xl shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 px-6 py-4 border-b border-gray-50 dark:border-gray-700/60">
-            <Scale size={16} className="text-orange-500" />
-            <h2 className="font-semibold text-gray-800 dark:text-white text-sm">البيانات الأساسية</h2>
+        <div className="bg-white dark:bg-gray-800/90 border border-gray-100 dark:border-gray-700/80 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] dark:shadow-none dark:hover:border-gray-600 transition-all duration-300 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-6 py-4 border-b border-gray-50 dark:border-gray-700/60 bg-gray-50/50 dark:bg-gray-800/50">
+            <Scale size={18} className="text-orange-500" />
+            <h2 className="font-bold text-gray-800 dark:text-white text-[15px]">البيانات الأساسية</h2>
           </div>
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="sm:col-span-2">
@@ -289,10 +289,10 @@ export default function CaseDetail() {
         </div>
 
         {/* المحكمة والجلسات */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/80 rounded-2xl shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 px-6 py-4 border-b border-gray-50 dark:border-gray-700/60">
-            <MapPin size={16} className="text-orange-500" />
-            <h2 className="font-semibold text-gray-800 dark:text-white text-sm">المحكمة والجلسات</h2>
+        <div className="bg-white dark:bg-gray-800/90 border border-gray-100 dark:border-gray-700/80 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] dark:shadow-none dark:hover:border-gray-600 transition-all duration-300 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-6 py-4 border-b border-gray-50 dark:border-gray-700/60 bg-gray-50/50 dark:bg-gray-800/50">
+            <MapPin size={18} className="text-orange-500" />
+            <h2 className="font-bold text-gray-800 dark:text-white text-[15px]">المحكمة والجلسات</h2>
           </div>
           <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
             <EditableField
@@ -315,10 +315,10 @@ export default function CaseDetail() {
         </div>
 
         {/* الملاحظات */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/80 rounded-2xl shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 px-6 py-4 border-b border-gray-50 dark:border-gray-700/60">
-            <FileText size={16} className="text-orange-500" />
-            <h2 className="font-semibold text-gray-800 dark:text-white text-sm">ملاحظات إضافية</h2>
+        <div className="bg-white dark:bg-gray-800/90 border border-gray-100 dark:border-gray-700/80 rounded-2xl shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.08)] dark:shadow-none dark:hover:border-gray-600 transition-all duration-300 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-6 py-4 border-b border-gray-50 dark:border-gray-700/60 bg-gray-50/50 dark:bg-gray-800/50">
+            <FileText size={18} className="text-orange-500" />
+            <h2 className="font-bold text-gray-800 dark:text-white text-[15px]">ملاحظات إضافية</h2>
           </div>
           <div className="p-6">
             {editing ? (
@@ -332,8 +332,8 @@ export default function CaseDetail() {
                 className="w-full px-3 py-2.5 bg-gray-50 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-700 rounded-xl text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors resize-y"
               />
             ) : (
-              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap min-h-[60px]">
-                {caseData?.description || <span className="text-gray-400 italic">لا توجد ملاحظات.</span>}
+              <p className="text-[15px] text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap min-h-[60px]">
+                {caseData?.description || <span className="text-gray-400 dark:text-gray-500 text-sm italic">لا توجد ملاحظات.</span>}
               </p>
             )}
           </div>

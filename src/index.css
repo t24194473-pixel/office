@@ -44,3 +44,30 @@ body {
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: #475569; /* Tailwind slate-600 */
 }
+
+/* إخفاء أسهم زيادة ونقصان الأرقام (Spin Buttons) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+/* تنسيقات الطباعة (Print Styles) */
+@media print {
+  /* إخفاء القوائم العلوية والجانبية المخصصة للتفاعل */
+  aside, header, .lg\:hidden {
+    display: none !important;
+  }
+  
+  /* فك تقييد الطول والسماح للمحتوى بالتمدد عبر صفحات للطباعة */
+  body, html, #root, main, .flex-1, .h-\[100dvh\] {
+    height: auto !important;
+    overflow: visible !important;
+    background: white !important;
+    color: black !important;
+  }
+}

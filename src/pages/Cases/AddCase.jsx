@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { db } from '../../config/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { Save, AlertCircle, ArrowRight, Scale, MapPin, Calendar, FileText } from 'lucide-react';
@@ -49,6 +49,7 @@ function InputField({ label, required, wider, name, ...props }) {
       <input
         id={name}
         name={name}
+        required={required}
         {...props}
         className="bg-gray-50 dark:bg-gray-900/50 px-4 py-2.5 border border-gray-200 focus:border-orange-500 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 w-full text-gray-900 dark:text-white text-sm transition-colors placeholder-gray-400 dark:placeholder-gray-600"
       />
@@ -57,13 +58,16 @@ function InputField({ label, required, wider, name, ...props }) {
 }
 
 /* ─── مكوِّن قائمة منسدلة ─── */
-function SelectField({ label, options, name, ...props }) {
+function SelectField({ label, options, name, required, ...props }) {
   return (
     <div>
-      <label htmlFor={name} className="block mb-1.5 font-medium text-gray-700 dark:text-gray-300 text-sm">{label}</label>
+      <label htmlFor={name} className="block mb-1.5 font-medium text-gray-700 dark:text-gray-300 text-sm">
+        {label} {required && <span className="text-orange-500">*</span>}
+      </label>
       <select
         id={name}
         name={name}
+        required={required}
         {...props}
         className="bg-gray-50 dark:bg-gray-900/50 px-4 py-2.5 border border-gray-200 focus:border-orange-500 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 w-full text-gray-900 dark:text-white text-sm transition-colors appearance-none cursor-pointer"
       >
@@ -85,18 +89,27 @@ export default function AddCase() {
   const { user } = useAuthStore();
 
   const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState('');
+  const [error, setError] = useState('');
 
   const [form, setForm] = useState({
-    title:           '',
-    clientName:      '',
-    opponentName:    '',
-    type:            CASE_TYPES[0],
-    status:          CASE_STATUSES[0].value,
-    court:           '',
+    title: '',
+    clientName: '',
+    opponentName: '',
+    type: CASE_TYPES[0],
+    status: CASE_STATUSES[0].value,
+    court: '',
     nextSessionDate: '',
-    description:     '',
+    description: '',
   });
+
+  const topRef = useRef(null);
+
+  // التمرير إلى الأعلى تلقائياً عند وجود خطأ
+  useEffect(() => {
+    if (error && topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [error]);
 
   const handle = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -111,6 +124,19 @@ export default function AddCase() {
     setLoading(true);
     setError('');
     try {
+      // التحقق من عدم وجود نفس رقم القضية في نفس النوع
+      const q = query(
+        collection(db, 'cases'),
+        where('type', '==', form.type),
+        where('title', '==', form.title.trim())
+      );
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        setError(`عذراً، يوجد بالفعل قضية من نوع "${form.type}" تحمل نفس الرقم (${form.title.trim()}).`);
+        setLoading(false);
+        return;
+      }
+
       await addDoc(collection(db, 'cases'), {
         ...form,
         searchKeywords: buildKeywords(form.title, form.clientName, form.opponentName),
@@ -127,7 +153,7 @@ export default function AddCase() {
   };
 
   return (
-    <div className="mx-auto px-4 sm:px-6 md:px-8 max-w-4xl">
+    <div className="mx-auto px-4 sm:px-6 md:px-8 max-w-4xl" ref={topRef}>
 
       {/* ─── رأس الصفحة ─── */}
       <div className="flex items-center gap-3 mb-8">
@@ -152,31 +178,30 @@ export default function AddCase() {
       )}
 
       {/* ─── النموذج ─── */}
-      <form onSubmit={handleSubmit} noValidate>
+      <form onSubmit={handleSubmit}>
         <div className="bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700/80 rounded-2xl overflow-hidden">
           <div className="space-y-8 p-6 md:p-8">
 
             {/* بيانات أساسية */}
             <FormSection icon={Scale} title="البيانات الأساسية">
               <InputField
-                label="عنوان / رقم القضية" required wider
-                type="text" name="title" value={form.title} onChange={handle}
-                placeholder="مثال: قضية عمالية رقم 154 / 2024"
+                label="(رقم القضية) الحفظ" required wider
+                type="number" name="title" value={form.title} onChange={handle}
               />
               <InputField
                 label="اسم الموكل" required
                 type="text" name="clientName" value={form.clientName} onChange={handle}
               />
               <InputField
-                label="اسم الخصم"
+                label="اسم الخصم" required
                 type="text" name="opponentName" value={form.opponentName} onChange={handle}
               />
               <SelectField
-                label="نوع القضية"
+                label="نوع القضية" required
                 name="type" value={form.type} onChange={handle}
                 options={CASE_TYPES}
               />
-              <SelectField
+              <SelectField required
                 label="حالة القضية"
                 name="status" value={form.status} onChange={handle}
                 options={CASE_STATUSES}
@@ -187,7 +212,7 @@ export default function AddCase() {
 
             {/* تفاصيل المحكمة */}
             <FormSection icon={MapPin} title="المحكمة والجلسة">
-              <InputField
+              <InputField required
                 label="المحكمة المختصة"
                 type="text" name="court" value={form.court} onChange={handle}
                 placeholder="مثال: محكمة العمل الابتدائية بالرياض"
