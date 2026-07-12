@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { db } from '../../config/firebase';
-import { doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, serverTimestamp, collection, query, where, getDocs } from 'firebase/firestore';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowRight, Save, AlertCircle, CheckCircle2,
@@ -123,8 +123,23 @@ export default function CaseDetail() {
     }
     setSaving(true);
     try {
+      // التحقق من عدم وجود نفس رقم القضية في نفس النوع (قاعدة الفرادية)
+      const q = query(
+        collection(db, 'cases'),
+        where('type', '==', form.type),
+        where('title', '==', form.title.trim())
+      );
+      const querySnapshot = await getDocs(q);
+      const duplicateExists = querySnapshot.docs.some(d => d.id !== caseId);
+      
+      if (duplicateExists) {
+        showToast('error', `عذراً، يوجد بالفعل قضية من نوع "${form.type}" تحمل نفس الرقم (${form.title.trim()}).`);
+        setSaving(false);
+        return;
+      }
+
       await updateDoc(doc(db, 'cases', caseId), {
-        title:           form.title,
+        title:           form.title.trim(),
         clientName:      form.clientName,
         opponentName:    form.opponentName,
         type:            form.type,
@@ -168,16 +183,18 @@ export default function CaseDetail() {
 
       {/* ─── إشعار عائم (Toast) ─── */}
       {toast && (
-        <div className={`fixed top-6 start-1/2 -translate-x-1/2 z-50 flex items-center gap-2.5 px-5 py-3 rounded-2xl shadow-xl text-sm font-medium transition-all max-w-sm w-full mx-4
-          ${toast.type === 'success'
-            ? 'bg-emerald-600 text-white shadow-emerald-600/25'
-            : 'bg-red-600 text-white shadow-red-600/25'}`}
-        >
-          {toast.type === 'success'
-            ? <CheckCircle2 size={18} className="shrink-0" />
-            : <AlertCircle  size={18} className="shrink-0" />
-          }
-          {toast.msg}
+        <div className="fixed top-6 left-0 right-0 z-[100] flex justify-center px-4 pointer-events-none animate-in slide-in-from-top-5 fade-in duration-300">
+          <div className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl shadow-xl text-sm font-medium pointer-events-auto max-w-md
+            ${toast.type === 'success'
+              ? 'bg-emerald-600 text-white shadow-emerald-600/25'
+              : 'bg-red-600 text-white shadow-red-600/25'}`}
+          >
+            {toast.type === 'success'
+              ? <CheckCircle2 size={18} className="shrink-0" />
+              : <AlertCircle  size={18} className="shrink-0" />
+            }
+            <span className="leading-relaxed">{toast.msg}</span>
+          </div>
         </div>
       )}
 

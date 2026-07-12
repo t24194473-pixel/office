@@ -3,7 +3,7 @@ import { db } from '../../config/firebase';
 import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { Save, AlertCircle, ArrowRight, Scale, MapPin, Calendar, FileText } from 'lucide-react';
+import { Save, AlertCircle, ArrowRight, Scale, MapPin, Calendar, FileText, ChevronDown, Check } from 'lucide-react';
 import { CASE_TYPES, CASE_STATUSES } from './casesConfig';
 
 /* ─── توليد كلمات مفتاحية للبحث الذكي ─── */
@@ -57,26 +57,73 @@ function InputField({ label, required, wider, name, ...props }) {
   );
 }
 
-/* ─── مكوِّن قائمة منسدلة ─── */
-function SelectField({ label, options, name, required, ...props }) {
+/* ─── مكوِّن قائمة منسدلة مخصصة واحترافية ─── */
+function SelectField({ label, options, name, value, onChange, required }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) setIsOpen(false);
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(opt => 
+    typeof opt === 'string' ? opt === value : opt.value === value
+  );
+  const displayLabel = typeof selectedOption === 'string' ? selectedOption : selectedOption?.label;
+
+  const handleSelect = (val) => {
+    onChange({ target: { name, value: val } });
+    setIsOpen(false);
+  };
+
   return (
-    <div>
-      <label htmlFor={name} className="block mb-1.5 font-medium text-gray-700 dark:text-gray-300 text-sm">
+    <div className="relative" ref={wrapperRef}>
+      <label className="block mb-1.5 font-medium text-gray-700 dark:text-gray-300 text-sm">
         {label} {required && <span className="text-orange-500">*</span>}
       </label>
-      <select
-        id={name}
-        name={name}
-        required={required}
-        {...props}
-        className="bg-gray-50 dark:bg-gray-900/50 px-4 py-2.5 border border-gray-200 focus:border-orange-500 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 w-full text-gray-900 dark:text-white text-sm transition-colors appearance-none cursor-pointer"
+      
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between w-full bg-gray-50 dark:bg-gray-900/50 px-4 py-2.5 border border-gray-200 dark:border-gray-700 hover:border-orange-400 dark:hover:border-orange-500 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 text-gray-900 dark:text-white text-sm transition-all text-right shadow-sm"
       >
-        {options.map(opt =>
-          typeof opt === 'string'
-            ? <option key={opt} value={opt}>{opt}</option>
-            : <option key={opt.value} value={opt.value}>{opt.label}</option>
-        )}
-      </select>
+        <span className={displayLabel ? '' : 'text-gray-400'}>{displayLabel || 'اختر...'}</span>
+        <ChevronDown size={16} className={`text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180 text-orange-500' : ''}`} />
+      </button>
+
+      {/* النافذة المنسدلة */}
+      <div 
+        className={`absolute z-20 w-full mt-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.3)] transition-all duration-200 origin-top
+        ${isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}
+      >
+        <div className="py-1.5 max-h-56 overflow-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-600">
+          {options.map((opt, idx) => {
+            const val = typeof opt === 'string' ? opt : opt.value;
+            const lbl = typeof opt === 'string' ? opt : opt.label;
+            const isSelected = val === value;
+            
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSelect(val)}
+                className={`w-full text-right px-4 py-2.5 text-sm flex items-center justify-between transition-colors
+                  ${isSelected 
+                    ? 'bg-orange-50 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400 font-bold' 
+                    : 'text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  }`}
+              >
+                {lbl}
+                {isSelected && <Check size={16} className="text-orange-600 dark:text-orange-400" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

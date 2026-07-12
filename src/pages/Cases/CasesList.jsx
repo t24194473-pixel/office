@@ -5,10 +5,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Plus, Search, Scale, MapPin, Calendar, Clock,
   ChevronDown, Archive, FolderOpen, Filter, X,
-  CheckCircle2, AlertTriangle, Printer, Download, Info
+  CheckCircle2, AlertTriangle, Printer, Download, Info, FileSpreadsheet, FileOutput
 } from 'lucide-react';
 import { CASE_TYPES, CASE_STATUSES, STATUS_STYLES } from './casesConfig';
 import PrintableCasesTable from './PrintableCasesTable';
+import ImportCasesModal from './ImportCasesModal';
+import { parseExcelFile, exportCasesToExcel } from '../../utils/excelImport';
 
 /* ══════════════════════════════════════════
    ثوابت الألوان
@@ -163,14 +165,32 @@ export default function CasesList() {
 
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [printTypeFilter, setPrintTypeFilter] = useState([]);
-  const [printAction, setPrintAction] = useState('print');
+
+  // استيراد الإكسل
+  const fileInputRef = useRef(null);
+  const [importModalOpen, setImportModalOpen] = useState(false);
+  const [parsedExcelData, setParsedExcelData] = useState(null);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const data = await parseExcelFile(file);
+      setParsedExcelData(data);
+      setImportModalOpen(true);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      // تفريغ الحقل لتتمكن من رفع نفس الملف مرة أخرى إذا لزم الأمر
+      e.target.value = null;
+    }
+  };
 
   // اختصار لوحة المفاتيح للطباعة (Ctrl + P)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
         e.preventDefault();
-        setPrintAction('print');
         setPrintModalOpen(true);
       }
     };
@@ -245,6 +265,9 @@ export default function CasesList() {
 
   const printFiltered = useMemo(() => {
     return cases.filter(c => {
+      // إخفاء القضايا المؤرشفة من الطباعة
+      if (c.status === 'archived') return false;
+      
       if (printTypeFilter.length > 0 && !printTypeFilter.includes(c.type)) return false;
       return true;
     });
@@ -301,18 +324,40 @@ export default function CasesList() {
             </p>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
+            
+            {/* حقل رفع مخفي */}
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept=".xlsx, .xls" 
+              onChange={handleFileUpload} 
+            />
+
             <button
-              onClick={() => { setPrintAction('pdf'); setPrintModalOpen(true); }}
-              className="flex items-center gap-1.5 sm:gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 text-gray-700 dark:text-gray-200 text-sm font-medium
-              px-3 sm:px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all shrink-0"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1.5 sm:gap-2 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 active:scale-95 text-emerald-700 dark:text-emerald-400 text-sm font-medium
+              px-3 sm:px-4 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-500/30 shadow-sm transition-all shrink-0"
+              title="استيراد قضايا من ملف إكسل"
             >
-              <Download size={18} />
-              <span className="hidden lg:inline">تنزيل PDF</span>
+              <FileSpreadsheet size={18} />
+              <span className="hidden xl:inline">استيراد</span>
             </button>
+
             <button
-              onClick={() => { setPrintAction('print'); setPrintModalOpen(true); }}
+              onClick={() => exportCasesToExcel(cases)}
+              className="flex items-center gap-1.5 sm:gap-2 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 active:scale-95 text-indigo-700 dark:text-indigo-400 text-sm font-medium
+              px-3 sm:px-4 py-2.5 rounded-xl border border-indigo-200 dark:border-indigo-500/30 shadow-sm transition-all shrink-0"
+              title="تصدير السجل الكامل إلى إكسل"
+            >
+              <FileOutput size={18} />
+              <span className="hidden xl:inline">تصدير الإكسل</span>
+            </button>
+
+            <button
+              onClick={() => setPrintModalOpen(true)}
               className="flex items-center gap-1.5 sm:gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 text-gray-700 dark:text-gray-200 text-sm font-medium
-              px-3 sm:px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all shrink-0"
+              px-3 sm:px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all shrink-0"
               title="طباعة (Ctrl + P)"
             >
               <Printer size={18} />
@@ -602,20 +647,20 @@ export default function CasesList() {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-200">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                  {printAction === 'pdf' ? <Download className="text-orange-600 dark:text-orange-500" size={20} /> : <Printer className="text-orange-600 dark:text-orange-500" size={20} />}
-                  {printAction === 'pdf' ? 'تنزيل التقرير كـ PDF' : 'خيارات الطباعة'}
+                  <Printer className="text-orange-600 dark:text-orange-500" size={20} />
+                  خيارات الطباعة
                 </h3>
                 <button onClick={() => setPrintModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                   <X size={20} />
                 </button>
               </div>
               
-              {printAction === 'pdf' && (
-                <div className="mb-5 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-medium flex gap-2 items-start leading-relaxed border border-blue-100 dark:border-blue-800/30">
-                  <Info className="shrink-0 mt-0.5" size={16} />
-                  <p>للحصول على ملف PDF بأعلى جودة، يرجى اختيار <strong>"حفظ بتنسيق PDF" (Save as PDF)</strong> من قائمة الطابعات في النافذة التالية.</p>
-                </div>
-              )}
+              <div className="mb-5 p-3.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-medium flex gap-3 items-start leading-relaxed border border-blue-100 dark:border-blue-800/30">
+                <Info className="shrink-0 mt-0.5" size={16} />
+                <p>
+                  <strong>تلميح:</strong> إذا كنت ترغب في حفظ التقرير كملف PDF عالي الجودة بدلاً من طباعته على الورق، اختر <span className="font-bold underline decoration-blue-300 underline-offset-2">حفظ بتنسيق PDF</span> (أو Save as PDF) من قائمة الطابعات في النافذة التالية.
+                </p>
+              </div>
 
               <div className="space-y-4 mb-8">
                 <div>
@@ -671,17 +716,8 @@ export default function CasesList() {
                   }}
                   className="flex-1 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-sm font-medium text-white shadow-sm shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
                 >
-                  {printAction === 'pdf' ? (
-                    <>
-                      <Download size={16} />
-                      متابعة للتنزيل
-                    </>
-                  ) : (
-                    <>
-                      <Printer size={16} />
-                      تأكيد وطباعة
-                    </>
-                  )}
+                  <Printer size={16} />
+                  تأكيد وطباعة
                 </button>
               </div>
             </div>
@@ -691,6 +727,16 @@ export default function CasesList() {
 
       {/* ─── جدول الطباعة (يظهر فقط عند الطباعة) ─── */}
       <PrintableCasesTable filtered={printFiltered} hasActiveFilter={printTypeFilter.length > 0} printType={printTypeFilter} />
+
+      {/* ─── مودل استيراد الإكسل ─── */}
+      <ImportCasesModal 
+        isOpen={importModalOpen} 
+        onClose={() => setImportModalOpen(false)} 
+        parsedData={parsedExcelData}
+        onComplete={() => {
+          // يمكن إضافة أي إجراء بعد الانتهاء
+        }}
+      />
     </>
   );
 }
