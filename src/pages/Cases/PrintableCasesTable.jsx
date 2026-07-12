@@ -1,70 +1,67 @@
-import { CASE_STATUSES } from './casesConfig';
+export default function PrintableCasesTable({ filtered, hasActiveFilter, printType }) {
+  const formatDate = (d) => {
+    if (!d) return "-";
+    const x = d.seconds ? new Date(d.seconds * 1000) : new Date(d);
+    return isNaN(x) ? "-" : x.toLocaleDateString("ar-SA");
+  };
 
-export default function PrintableCasesTable({ filtered, hasActiveFilter }) {
   return (
-    <div className="hidden print:block p-8 bg-white" dir="rtl">
-      <div className="text-center mb-8 border-b-2 border-gray-800 pb-4">
-        <h1 className="text-3xl font-bold text-black mb-2">سجل القضايا</h1>
-        <p className="text-sm text-gray-700 font-medium">
-          {hasActiveFilter ? 'قائمة مفلترة مخصصة' : 'جميع القضايا المسجلة'}
-        </p>
-        <p className="text-sm text-gray-600 mt-1">
-          تاريخ الطباعة: {new Date().toLocaleDateString('ar-SA')}
-        </p>
+    <div className="hidden print:block bg-white text-slate-800 p-5 print:p-4 text-[12px]" dir="rtl">
+      <style>{`
+        @media print{
+          @page{size:A4 portrait;margin:8mm;}
+          thead{display:table-header-group;}
+          tr{break-inside:avoid;page-break-inside:avoid;}
+          *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+        }
+      `}</style>
+
+      <div className="mb-4 border-b border-slate-300 pb-3 flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">سجل القضايا</h1>
+            <span className="bg-slate-100 border border-slate-200 text-slate-800 px-3 py-1 rounded-lg text-sm font-bold shadow-sm">
+              {hasActiveFilter ? printType.join(" - ") : "جميع القضايا"}
+            </span>
+          </div>
+          <p className="text-slate-500 mt-1.5 text-xs font-medium">
+            تقرير تفصيلي بالقضايا المسجلة في النظام
+          </p>
+        </div>
+        <div className="text-left text-[11px] leading-6">
+          <div><b>التاريخ:</b> {new Date().toLocaleDateString("ar-SA")}</div>
+          <div><b>عدد القضايا:</b> {filtered.length}</div>
+        </div>
       </div>
 
-      <table className="w-full text-right border-collapse border border-gray-400 text-sm">
+      <table className="w-full border-separate border-spacing-0">
         <thead>
-          <tr className="bg-gray-100 print:bg-gray-200">
-            <th className="border border-gray-400 px-4 py-3 font-bold text-black text-center">رقم القضية</th>
-            <th className="border border-gray-400 px-4 py-3 font-bold text-black text-center">النوع</th>
-            <th className="border border-gray-400 px-4 py-3 font-bold text-black text-center">الأطراف (المدعي - المدعى عليه)</th>
-            <th className="border border-gray-400 px-4 py-3 font-bold text-black text-center">المحكمة والجلسة القادمة</th>
-            <th className="border border-gray-400 px-4 py-3 font-bold text-black text-center w-32">تاريخ الإضافة</th>
+          <tr className="bg-slate-100 text-slate-700">
+            {["#", "رقم القضية", "النوع", "الأطراف", "المحكمة", "الجلسة", "الإضافة"].map(h => (
+              <th key={h} className="px-2 py-2 text-center border-b border-slate-300 font-semibold">{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {filtered.map(item => {
-            let createdDate = '-';
-            if (item.createdAt) {
-               const dateObj = item.createdAt.seconds ? new Date(item.createdAt.seconds * 1000) : new Date(item.createdAt);
-               if (!isNaN(dateObj)) createdDate = dateObj.toLocaleDateString('ar-SA');
-            }
-            return (
-              <tr key={item.id} className="break-inside-avoid">
-                <td className="border border-gray-400 px-4 py-3 font-bold text-black text-center">{item.title}</td>
-                <td className="border border-gray-400 px-4 py-3 text-black text-center">{item.type}</td>
-                <td className="border border-gray-400 px-4 py-3 text-black text-center">
-                  <div className="font-semibold">{item.clientName}</div>
-                  {item.opponentName && <div className="text-gray-700 mt-1">ضد: {item.opponentName}</div>}
-                </td>
-                <td className="border border-gray-400 px-4 py-3 text-black text-center">
-                  <div>{item.court || '-'}</div>
-                  {item.nextSessionDate && (
-                    <div className="mt-1 font-semibold">
-                      جلسة: {new Date(item.nextSessionDate).toLocaleDateString('ar-SA')}
-                    </div>
-                  )}
-                </td>
-                <td className="border border-gray-400 px-4 py-3 text-black font-semibold text-center">
-                  {createdDate}
-                </td>
-              </tr>
-            );
-          })}
+          {filtered.length === 0 && (
+            <tr><td colSpan={7} className="py-6 text-center text-slate-500">لا توجد بيانات.</td></tr>
+          )}
+          {filtered.map((item, i) => (
+            <tr key={item.id} className={i % 2 ? "bg-slate-50" : "bg-white"}>
+              <td className="px-2 py-2 border-b border-slate-200 text-center">{i + 1}</td>
+              <td className="px-2 py-2 border-b border-slate-200 font-medium text-center">{item.title || "-"}</td>
+              <td className="px-2 py-2 border-b border-slate-200 text-center">{item.type || "-"}</td>
+              <td className="px-2 py-2 border-b border-slate-200">
+                <div className="font-medium">{item.clientName || "-"}</div>
+                {item.opponentName && <div className="text-slate-500 text-[11px]">ضد {item.opponentName}</div>}
+              </td>
+              <td className="px-2 py-2 border-b border-slate-200 text-center">{item.court || "-"}</td>
+              <td className="px-2 py-2 border-b border-slate-200 text-center">{formatDate(item.nextSessionDate)}</td>
+              <td className="px-2 py-2 border-b border-slate-200 text-center">{formatDate(item.createdAt)}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
-
-      {filtered.length === 0 && (
-        <div className="text-center py-10 text-gray-500 font-bold border-x border-b border-gray-400">
-          لا توجد قضايا لعرضها في هذه القائمة.
-        </div>
-      )}
-
-      <div className="mt-6 flex justify-between items-center text-xs text-gray-500 font-medium">
-        <p>إجمالي القضايا: {filtered.length}</p>
-        <p>نظام إدارة القضايا</p>
-      </div>
     </div>
   );
 }

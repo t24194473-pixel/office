@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Plus, Search, Scale, MapPin, Calendar, Clock,
   ChevronDown, Archive, FolderOpen, Filter, X,
-  CheckCircle2, AlertTriangle
+  CheckCircle2, AlertTriangle, Printer, Download, Info
 } from 'lucide-react';
 import { CASE_TYPES, CASE_STATUSES, STATUS_STYLES } from './casesConfig';
 import PrintableCasesTable from './PrintableCasesTable';
@@ -161,6 +161,23 @@ export default function CasesList() {
   const [caseToArchive, setCaseToArchive] = useState(null);
   const [isArchiving, setIsArchiving] = useState(false);
 
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [printTypeFilter, setPrintTypeFilter] = useState([]);
+  const [printAction, setPrintAction] = useState('print');
+
+  // اختصار لوحة المفاتيح للطباعة (Ctrl + P)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        setPrintAction('print');
+        setPrintModalOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleArchiveConfirm = async () => {
     if (!caseToArchive) return;
     setIsArchiving(true);
@@ -226,6 +243,13 @@ export default function CasesList() {
     });
   }, [cases, search, typeFilter, statusFilter]);
 
+  const printFiltered = useMemo(() => {
+    return cases.filter(c => {
+      if (printTypeFilter.length > 0 && !printTypeFilter.includes(c.type)) return false;
+      return true;
+    });
+  }, [cases, printTypeFilter]);
+
   /* ─── التمرير اللانهائي (Pagination) ─── */
   const [displayCount, setDisplayCount] = useState(7);
   const observerRef = useRef(null);
@@ -276,14 +300,33 @@ export default function CasesList() {
               {counts.active} نشطة · {counts.archived} مؤرشفة · {counts.total} إجمالي
             </p>
           </div>
-          <Link
-            to="/cases/new"
-            className="flex items-center gap-1.5 sm:gap-2 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-sm font-medium
-            px-3 sm:px-5 py-2.5 rounded-xl shadow-sm shadow-orange-600/25 transition-all shrink-0"
-          >
-            <Plus size={18} />
-            <span className="hidden sm:inline">إضافة قضية</span>
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              onClick={() => { setPrintAction('pdf'); setPrintModalOpen(true); }}
+              className="flex items-center gap-1.5 sm:gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 text-gray-700 dark:text-gray-200 text-sm font-medium
+              px-3 sm:px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all shrink-0"
+            >
+              <Download size={18} />
+              <span className="hidden lg:inline">تنزيل PDF</span>
+            </button>
+            <button
+              onClick={() => { setPrintAction('print'); setPrintModalOpen(true); }}
+              className="flex items-center gap-1.5 sm:gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 text-gray-700 dark:text-gray-200 text-sm font-medium
+              px-3 sm:px-5 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all shrink-0"
+              title="طباعة (Ctrl + P)"
+            >
+              <Printer size={18} />
+              <span className="hidden sm:inline">طباعة</span>
+            </button>
+            <Link
+              to="/cases/new"
+              className="flex items-center gap-1.5 sm:gap-2 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-sm font-medium
+              px-3 sm:px-5 py-2.5 rounded-xl shadow-sm shadow-orange-600/25 transition-all shrink-0"
+            >
+              <Plus size={18} />
+              <span className="hidden sm:inline">إضافة قضية</span>
+            </Link>
+          </div>
         </div>
 
         {/* ─── شريط بحث + فلاتر ─── */}
@@ -552,10 +595,102 @@ export default function CasesList() {
             </div>
           </div>
         )}
+
+        {/* ─── مودال خيارات الطباعة ─── */}
+        {printModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-all">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  {printAction === 'pdf' ? <Download className="text-orange-600 dark:text-orange-500" size={20} /> : <Printer className="text-orange-600 dark:text-orange-500" size={20} />}
+                  {printAction === 'pdf' ? 'تنزيل التقرير كـ PDF' : 'خيارات الطباعة'}
+                </h3>
+                <button onClick={() => setPrintModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                  <X size={20} />
+                </button>
+              </div>
+              
+              {printAction === 'pdf' && (
+                <div className="mb-5 p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-medium flex gap-2 items-start leading-relaxed border border-blue-100 dark:border-blue-800/30">
+                  <Info className="shrink-0 mt-0.5" size={16} />
+                  <p>للحصول على ملف PDF بأعلى جودة، يرجى اختيار <strong>"حفظ بتنسيق PDF" (Save as PDF)</strong> من قائمة الطابعات في النافذة التالية.</p>
+                </div>
+              )}
+
+              <div className="space-y-4 mb-8">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">نوع القضايا للطباعة</label>
+                  <div className="flex flex-wrap gap-2.5">
+                    <button
+                      onClick={() => setPrintTypeFilter([])}
+                      className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
+                        printTypeFilter.length === 0
+                          ? 'bg-orange-600 text-white border-orange-600 shadow-md shadow-orange-600/20'
+                          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-orange-400 hover:text-orange-600'
+                      }`}
+                    >
+                      الكل
+                    </button>
+                    {CASE_TYPES.map(t => {
+                      const isSelected = printTypeFilter.includes(t);
+                      return (
+                        <button
+                          key={t}
+                          onClick={() => {
+                            if (isSelected) {
+                              setPrintTypeFilter(prev => prev.filter(x => x !== t));
+                            } else {
+                              setPrintTypeFilter(prev => [...prev, t]);
+                            }
+                          }}
+                          className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all ${
+                            isSelected
+                              ? 'bg-orange-600 text-white border-orange-600 shadow-md shadow-orange-600/20'
+                              : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-orange-400 hover:text-orange-600'
+                          }`}
+                        >
+                          {t}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setPrintModalOpen(false)}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={() => {
+                    setPrintModalOpen(false);
+                    setTimeout(() => window.print(), 100);
+                  }}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-sm font-medium text-white shadow-sm shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
+                >
+                  {printAction === 'pdf' ? (
+                    <>
+                      <Download size={16} />
+                      متابعة للتنزيل
+                    </>
+                  ) : (
+                    <>
+                      <Printer size={16} />
+                      تأكيد وطباعة
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ─── جدول الطباعة (يظهر فقط عند الطباعة) ─── */}
-      <PrintableCasesTable filtered={filtered} hasActiveFilter={hasActiveFilter} />
+      <PrintableCasesTable filtered={printFiltered} hasActiveFilter={printTypeFilter.length > 0} printType={printTypeFilter} />
     </>
   );
 }
