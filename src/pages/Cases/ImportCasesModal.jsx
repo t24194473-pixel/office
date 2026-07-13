@@ -50,10 +50,16 @@ export default function ImportCasesModal({ isOpen, onClose, parsedData, onComple
         return missingDefaults[key] || '';
       };
 
+      let titleVal = getVal('title');
+      // تجريد القيمة من أي نصوص أو حروف والاحتفاظ بالأرقام فقط (العربية والإنجليزية)
+      titleVal = titleVal.replace(/[^\d٠-٩]/g, '');
+
       return {
-        title: getVal('title'),
+        title: titleVal,
         clientName: getVal('clientName'),
+        clientRole: getVal('clientRole'),
         opponentName: getVal('opponentName'),
+        caseSubject: getVal('caseSubject'),
         type: getVal('type') || CASE_TYPES[0], // النوع الافتراضي
         status: getVal('status') || 'active', // الحالة الافتراضية
         court: getVal('court'),
@@ -139,13 +145,15 @@ export default function ImportCasesModal({ isOpen, onClose, parsedData, onComple
         const caseData = {
           title: c.title,
           clientName: c.clientName,
+          clientRole: c.clientRole,
           opponentName: c.opponentName,
+          caseSubject: c.caseSubject,
           type: safeType,
           status: safeStatus,
           court: c.court,
           nextSessionDate: c.nextSessionDate,
           description: c.description,
-          searchKeywords: buildKeywords(c.title, c.clientName, c.opponentName, c.court),
+          searchKeywords: buildKeywords(c.title, c.clientName, c.opponentName, c.caseSubject, c.court),
           updatedAt: serverTimestamp()
         };
 

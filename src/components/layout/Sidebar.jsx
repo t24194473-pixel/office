@@ -9,46 +9,41 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
     { name: 'لوحة القيادة', icon: <Home size={20} />, path: '/', active: location.pathname === '/', badge: '' },
     { name: 'القضايا', icon: <Scale size={20} />, path: '/cases', active: location.pathname.startsWith('/cases'), badge: '' },
-    { name: 'المهام', icon: <CheckSquare size={20} />, path: '/tasks', active: false, badge: '12+' },
-    { name: 'التقويم', icon: <Calendar size={20} />, path: '/calendar', active: false, badge: '' },
-    { name: 'التحليلات', icon: <BarChart2 size={20} />, path: '/analytics', active: false, badge: '' }
   ];
 
   // أضف قائمة الإدارة إذا كان المستخدم أدمن
   if (profile?.role === 'admin') {
-    menuItems.push({ 
-       name: 'الفريق', 
-       icon: <Users size={20} />, 
-       path: '/admin/requests', 
-       active: location.pathname === '/admin/requests', 
-       badge: '' 
+    menuItems.push({
+      name: 'الفريق',
+      icon: <Users size={20} />,
+      path: '/admin/requests',
+      active: location.pathname === '/admin/requests',
+      badge: ''
     });
   }
 
   const generalItems = [
     { name: 'الإعدادات', icon: <Settings size={20} />, path: '#' },
-    { name: 'المساعدة', icon: <HelpCircle size={20} />, path: '#' },
   ];
 
   return (
     <>
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="lg:hidden z-40 fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
           onClick={() => setIsOpen(false)}
         />
       )}
-      
+
       {/* Sidebar Content */}
       <aside className={`fixed top-0 bottom-0 start-0 z-50 w-64 shrink-0 bg-white dark:bg-gray-900 border-e border-gray-100 dark:border-gray-800 flex flex-col transition-all duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0 lg:static'}`}>
-        
+
         {/* Logo Area */}
         <div className="flex items-center gap-3 px-6 border-gray-50/50 dark:border-gray-800 border-b h-20 transition-colors duration-300 shrink-0">
-          <div className="flex justify-center items-center bg-gradient-to-br from-orange-400 to-orange-600 shadow-lg shadow-orange-500/30 dark:shadow-orange-700/20 rounded-lg w-8 h-8 font-bold text-white shrink-0">
-            D
+          <div className="flex justify-center items-center bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-500/20 dark:to-orange-500/40 rounded-[14px] border border-orange-300/50 dark:border-orange-500/50 shrink-0 shadow-sm transition-all hover:scale-105">
+            <img src="/pwa-icon.png" alt="Logo" className="w-14 h-13 object-contain drop-shadow-md" />
           </div>
-          <span className="font-bold text-gray-900 dark:text-white text-xl truncate tracking-tight transition-colors">دانزو</span>
           <button className="lg:hidden ms-auto text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 shrink-0" onClick={() => setIsOpen(false)}>
             <Menu size={24} />
           </button>
@@ -56,7 +51,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
         {/* Menu Items */}
         <div className="flex flex-col flex-1 gap-8 px-4 py-6 overflow-y-auto custom-scrollbar">
-          
+
           {/* Main Menu */}
           <div>
             <p className="mb-3 px-3 font-semibold text-gray-400 dark:text-gray-500 text-xs uppercase tracking-wider">القائمة الرئيسية</p>
@@ -81,7 +76,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
           <div>
             <p className="mb-3 px-3 font-semibold text-gray-400 dark:text-gray-500 text-xs uppercase tracking-wider">عام</p>
             <ul className="space-y-1">
-               {generalItems.map((item, idx) => (
+              {generalItems.map((item, idx) => (
                 <li key={idx}>
                   <Link to={item.path} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-3 py-2.5 rounded-xl text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 dark:text-gray-400 transition-colors">
                     <span className="text-gray-400 dark:text-gray-500 shrink-0">{item.icon}</span>
@@ -89,12 +84,12 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                   </Link>
                 </li>
               ))}
-                <li>
-                  <button onClick={logout} className="flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2.5 rounded-xl w-full text-red-500 dark:text-red-400 transition-colors">
-                    <span className="shrink-0"><LogOut size={20} /></span>
-                    <span className="truncate">تسجيل الخروج</span>
-                  </button>
-                </li>
+              <li>
+                <button onClick={logout} className="flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2.5 rounded-xl w-full text-red-500 dark:text-red-400 transition-colors">
+                  <span className="shrink-0"><LogOut size={20} /></span>
+                  <span className="truncate">تسجيل الخروج</span>
+                </button>
+              </li>
             </ul>
           </div>
 

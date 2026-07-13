@@ -4,7 +4,9 @@ import { read, utils, writeFile } from 'xlsx';
 export const EXPECTED_COLUMNS = {
   title: 'رقم الحفظ',
   clientName: 'اسم الموكل',
+  clientRole: 'صفة الموكل',
   opponentName: 'اسم الخصم',
+  caseSubject: 'موضوع الدعوى',
   type: 'نوع القضية',
   status: 'حالة القضية',
   court: 'المحكمة المختصة',
@@ -83,7 +85,9 @@ export function exportCasesToExcel(cases) {
     const formattedData = sheetCases.map(c => ({
       [EXPECTED_COLUMNS.title]: c.title || '-',
       [EXPECTED_COLUMNS.clientName]: c.clientName || '-',
+      [EXPECTED_COLUMNS.clientRole]: c.clientRole || '-',
       [EXPECTED_COLUMNS.opponentName]: c.opponentName || '-',
+      [EXPECTED_COLUMNS.caseSubject]: c.caseSubject || '-',
       [EXPECTED_COLUMNS.type]: c.type || '-',
       [EXPECTED_COLUMNS.status]: c.status || '-',
       [EXPECTED_COLUMNS.court]: c.court || '-',
@@ -101,7 +105,9 @@ export function exportCasesToExcel(cases) {
     worksheet['!cols'] = [
       { wch: 15 }, // رقم الحفظ
       { wch: 25 }, // الموكل
+      { wch: 15 }, // صفة الموكل
       { wch: 25 }, // الخصم
+      { wch: 30 }, // موضوع الدعوى
       { wch: 20 }, // النوع
       { wch: 15 }, // الحالة
       { wch: 25 }, // المحكمة

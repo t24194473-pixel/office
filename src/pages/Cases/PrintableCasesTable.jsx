@@ -37,14 +37,14 @@ export default function PrintableCasesTable({ filtered, hasActiveFilter, printTy
       <table className="w-full border-separate border-spacing-0">
         <thead>
           <tr className="bg-slate-100 text-slate-700">
-            {["#", "رقم القضية", "النوع", "الأطراف", "المحكمة", "الجلسة", "الإضافة"].map(h => (
+            {["#", "رقم القضية", "النوع", "الأطراف", "موضوع الدعوى", "المحكمة", "الجلسة", "الإضافة"].map(h => (
               <th key={h} className="px-2 py-2 text-center border-b border-slate-300 font-semibold">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {filtered.length === 0 && (
-            <tr><td colSpan={7} className="py-6 text-center text-slate-500">لا توجد بيانات.</td></tr>
+            <tr><td colSpan={8} className="py-6 text-center text-slate-500">لا توجد بيانات.</td></tr>
           )}
           {filtered.map((item, i) => (
             <tr key={item.id} className={i % 2 ? "bg-slate-50" : "bg-white"}>
@@ -55,6 +55,7 @@ export default function PrintableCasesTable({ filtered, hasActiveFilter, printTy
                 <div className="font-medium">{item.clientName || "-"}</div>
                 {item.opponentName && <div className="text-slate-500 text-[11px]">ضد {item.opponentName}</div>}
               </td>
+              <td className="px-2 py-2 border-b border-slate-200 text-center">{item.caseSubject || "-"}</td>
               <td className="px-2 py-2 border-b border-slate-200 text-center">{item.court || "-"}</td>
               <td className="px-2 py-2 border-b border-slate-200 text-center">{formatDate(item.nextSessionDate)}</td>
               <td className="px-2 py-2 border-b border-slate-200 text-center">{formatDate(item.createdAt)}</td>

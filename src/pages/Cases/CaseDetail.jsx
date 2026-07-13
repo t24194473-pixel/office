@@ -141,7 +141,9 @@ export default function CaseDetail() {
       await updateDoc(doc(db, 'cases', caseId), {
         title:           form.title.trim(),
         clientName:      form.clientName,
+        clientRole:      form.clientRole,
         opponentName:    form.opponentName,
+        caseSubject:     form.caseSubject,
         type:            form.type,
         status:          form.status,
         court:           form.court,
@@ -280,6 +282,14 @@ export default function CaseDetail() {
               editing={editing}
             />
             <EditableField
+              label="صفة الموكل"
+              name="clientRole"
+              value={form?.clientRole}
+              onChange={handleChange}
+              editing={editing}
+              placeholder="مثال: مدعي، مدعى عليه"
+            />
+            <EditableField
               label="اسم الخصم"
               name="opponentName"
               value={form?.opponentName}
@@ -302,6 +312,16 @@ export default function CaseDetail() {
               editing={editing}
               options={CASE_STATUSES}
             />
+            <div className="sm:col-span-2">
+              <EditableField
+                label="موضوع الدعوى"
+                name="caseSubject"
+                value={form?.caseSubject}
+                onChange={handleChange}
+                editing={editing}
+                placeholder="أدخل موضوع الدعوى باختصار"
+              />
+            </div>
           </div>
         </div>
 

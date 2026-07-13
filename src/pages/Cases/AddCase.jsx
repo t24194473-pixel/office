@@ -141,7 +141,9 @@ export default function AddCase() {
   const [form, setForm] = useState({
     title: '',
     clientName: '',
+    clientRole: '',
     opponentName: '',
+    caseSubject: '',
     type: CASE_TYPES[0],
     status: CASE_STATUSES[0].value,
     court: '',
@@ -240,6 +242,11 @@ export default function AddCase() {
                 type="text" name="clientName" value={form.clientName} onChange={handle}
               />
               <InputField
+                label="صفة الموكل"
+                type="text" name="clientRole" value={form.clientRole} onChange={handle}
+                placeholder="مثال: مدعي، مدعى عليه"
+              />
+              <InputField
                 label="اسم الخصم" required
                 type="text" name="opponentName" value={form.opponentName} onChange={handle}
               />
@@ -252,6 +259,11 @@ export default function AddCase() {
                 label="حالة القضية"
                 name="status" value={form.status} onChange={handle}
                 options={CASE_STATUSES}
+              />
+              <InputField
+                label="موضوع الدعوى" wider
+                type="text" name="caseSubject" value={form.caseSubject} onChange={handle}
+                placeholder="أدخل موضوع الدعوى باختصار"
               />
             </FormSection>
 

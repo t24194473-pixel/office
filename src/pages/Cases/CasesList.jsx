@@ -79,18 +79,26 @@ function CaseCard({ item, onNavigate, onArchiveClick }) {
       </div>
 
       {/* الأطراف */}
-      <div className="flex flex-col gap-1.5 mb-3">
-        <div className="flex items-center gap-2 text-xs text-gray-700 dark:text-gray-300">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-          <span className="truncate font-medium">{item.clientName}</span>
+      <div className="flex flex-col gap-1.5 mb-2">
+        <div className="flex items-start gap-2 text-xs text-gray-700 dark:text-gray-300">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
+          <span className="font-medium leading-snug break-words">{item.clientName}</span>
         </div>
         {item.opponentName && (
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
-            <span className="truncate">{item.opponentName}</span>
+          <div className="flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0 mt-1.5" />
+            <span className="leading-snug break-words">{item.opponentName}</span>
           </div>
         )}
       </div>
+
+      {/* موضوع الدعوى */}
+      {item.caseSubject && (
+        <div className="mb-3 px-3 py-1.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg text-xs text-gray-600 dark:text-gray-300 leading-relaxed border border-gray-100 dark:border-gray-700/50">
+          <span className="font-semibold text-gray-400 dark:text-gray-500 text-[10px] block mb-0.5">موضوع الدعوى:</span>
+          {item.caseSubject}
+        </div>
+      )}
 
       {/* المحكمة والجلسة */}
       <div className="flex flex-wrap gap-3 mb-3">
@@ -505,10 +513,10 @@ export default function CasesList() {
                 <table className="w-full text-start">
                   <thead>
                     <tr className="bg-gray-50/70 dark:bg-gray-900/40 border-b border-gray-100 dark:border-gray-700/60">
-                      {['تفاصيل القضية', 'الأطراف', 'المحكمة والجلسة', 'الحالة', ''].map((h, i) => (
+                      {['تفاصيل القضية', 'الأطراف', 'موضوع الدعوى', 'المحكمة والجلسة', 'الحالة', ''].map((h, i) => (
                         <th key={i}
                           className={`px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide
-                          ${i === 4 ? 'text-end w-10' : 'text-start'}`}
+                          ${i === 5 ? 'text-end w-10' : 'text-start'}`}
                         >
                           {h}
                         </th>
@@ -535,16 +543,23 @@ export default function CasesList() {
                         {/* الأطراف */}
                         <td className="px-5 py-4">
                           <div className="flex flex-col gap-1.5 text-sm">
-                            <span className="flex items-center gap-1.5">
-                              <span className="bg-emerald-500 rounded-full w-1.5 h-1.5 shrink-0" />
-                              <span className="text-gray-800 dark:text-gray-200 truncate max-w-[140px]" title={item.clientName}>{item.clientName}</span>
+                            <span className="flex items-start gap-1.5">
+                              <span className="bg-emerald-500 rounded-full w-1.5 h-1.5 shrink-0 mt-1.5" />
+                              <span className="text-gray-800 dark:text-gray-200 leading-snug break-words max-w-[200px]" title={item.clientName}>{item.clientName}</span>
                             </span>
                             {item.opponentName && (
-                              <span className="flex items-center gap-1.5">
-                                <span className="bg-red-400 rounded-full w-1.5 h-1.5 shrink-0" />
-                                <span className="text-gray-500 dark:text-gray-400 truncate max-w-[140px]" title={item.opponentName}>{item.opponentName}</span>
+                              <span className="flex items-start gap-1.5">
+                                <span className="bg-red-400 rounded-full w-1.5 h-1.5 shrink-0 mt-1.5" />
+                                <span className="text-gray-500 dark:text-gray-400 leading-snug break-words max-w-[200px]" title={item.opponentName}>{item.opponentName}</span>
                               </span>
                             )}
+                          </div>
+                        </td>
+
+                        {/* موضوع الدعوى */}
+                        <td className="px-5 py-4">
+                          <div className="text-xs text-gray-600 dark:text-gray-300 leading-snug break-words max-w-[200px]">
+                            {item.caseSubject || <span className="text-gray-400 italic">غير محدد</span>}
                           </div>
                         </td>
 
