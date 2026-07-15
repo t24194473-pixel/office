@@ -6,6 +6,7 @@ import './App.css';
 import { router } from './routes/AppRouter';
 import { useAuthStore } from './store/authStore';
 import { Loader } from 'lucide-react';
+import NetworkStatus from './components/NetworkStatus';
 
 function App() {
   const { initAuth, isLoading } = useAuthStore();
@@ -17,7 +18,7 @@ function App() {
 
   if (isLoading) {
     return (
-      <div className="flex bg-gray-50 dark:bg-gray-950 h-[100dvh] w-full items-center justify-center">
+      <div className="flex bg-gray-50 dark:bg-gray-950 h-dvh w-full items-center justify-center">
          <div className="flex flex-col items-center gap-4">
            <Loader size={40} className="text-orange-500 animate-spin" />
            <p className="text-gray-500 font-semibold">جاري تهيئة النظام...</p>
@@ -28,6 +29,7 @@ function App() {
 
   return (
     <>
+      <NetworkStatus />
       <RouterProvider router={router} />
     </>
   );

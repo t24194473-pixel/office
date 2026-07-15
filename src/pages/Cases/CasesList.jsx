@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Plus, Search, Scale, MapPin, Calendar, Clock,
   ChevronDown, Archive, FolderOpen, Filter, X,
-  CheckCircle2, AlertTriangle, Printer, Download, Info, FileSpreadsheet, FileOutput, Trash2
+  CheckCircle2, AlertTriangle, Printer, Download, Info, FileSpreadsheet, FileOutput
 } from 'lucide-react';
 import { CASE_TYPES, CASE_STATUSES, STATUS_STYLES } from './casesConfig';
 import PrintableCasesTable from './PrintableCasesTable';
@@ -42,13 +42,13 @@ function StatusChanger({ caseId, current, onArchiveClick }) {
       {current !== 'archived' ? (
         <button
           onClick={(e) => { e.stopPropagation(); onArchiveClick(caseId); }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-600 hover:border-orange-400 dark:hover:border-orange-500 hover:text-orange-600 shadow-sm"
+          className="flex items-center gap-1.5 bg-white dark:bg-gray-800 shadow-sm px-3 py-1.5 border border-gray-200 hover:border-orange-400 dark:border-gray-600 dark:hover:border-orange-500 rounded-full font-medium text-[11px] text-gray-600 hover:text-orange-600 dark:text-gray-300 transition-all"
         >
           <Archive size={12} className="shrink-0" />
           أرشفة القضية
         </button>
       ) : (
-        <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-medium border bg-gray-50 text-gray-500 border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+        <span className="flex items-center gap-1.5 bg-gray-50 dark:bg-gray-800 px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-full font-medium text-[11px] text-gray-500">
           <CheckCircle2 size={12} className="shrink-0" />
           مؤرشفة
         </span>
@@ -62,40 +62,39 @@ function CaseCard({ item, onNavigate, onArchiveClick, onDeleteClick }) {
   return (
     <div
       onClick={() => onNavigate(item.id)}
-      className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700/80 shadow-sm p-4 cursor-pointer
-        hover:shadow-md hover:border-orange-200 dark:hover:border-orange-700/50 transition-all active:scale-[0.99]"
+      className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md p-4 border border-gray-100 hover:border-orange-200 dark:border-gray-700/80 dark:hover:border-orange-700/50 rounded-2xl active:scale-[0.99] transition-all cursor-pointer"
     >
       {/* رأس البطاقة */}
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="min-w-0 flex-1">
+      <div className="flex justify-between items-start gap-3 mb-3">
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="bg-orange-50 border border-orange-200 dark:bg-orange-500/10 dark:border-orange-500/30 text-orange-700 dark:text-orange-400 px-2 py-0.5 rounded text-xs font-bold tracking-wide">
+            <span className="bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 border border-orange-200 dark:border-orange-500/30 rounded font-bold text-orange-700 dark:text-orange-400 text-xs tracking-wide">
               {item.title}
             </span>
           </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{item.type}</p>
+          <p className="font-medium text-gray-500 dark:text-gray-400 text-xs">{item.type}</p>
         </div>
         <StatusBadge value={item.status} size="xs" />
       </div>
 
       {/* الأطراف */}
       <div className="flex flex-col gap-1.5 mb-2">
-        <div className="flex items-start gap-2 text-xs text-gray-700 dark:text-gray-300">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-1.5" />
-          <span className="font-medium leading-snug break-words">{item.clientName}</span>
+        <div className="flex items-start gap-2 text-gray-700 dark:text-gray-300 text-xs">
+          <span className="bg-emerald-500 mt-1.5 rounded-full w-1.5 h-1.5 shrink-0" />
+          <span className="font-medium break-words leading-snug">{item.clientName}</span>
         </div>
         {item.opponentName && (
-          <div className="flex items-start gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0 mt-1.5" />
-            <span className="leading-snug break-words">{item.opponentName}</span>
+          <div className="flex items-start gap-2 text-gray-500 dark:text-gray-400 text-xs">
+            <span className="bg-red-400 mt-1.5 rounded-full w-1.5 h-1.5 shrink-0" />
+            <span className="break-words leading-snug">{item.opponentName}</span>
           </div>
         )}
       </div>
 
       {/* موضوع الدعوى */}
       {item.caseSubject && (
-        <div className="mb-3 px-3 py-1.5 bg-gray-50 dark:bg-gray-700/30 rounded-lg text-xs text-gray-600 dark:text-gray-300 leading-relaxed border border-gray-100 dark:border-gray-700/50">
-          <span className="font-semibold text-gray-400 dark:text-gray-500 text-[10px] block mb-0.5">موضوع الدعوى:</span>
+        <div className="bg-gray-50 dark:bg-gray-700/30 mb-3 px-3 py-1.5 border border-gray-100 dark:border-gray-700/50 rounded-lg text-gray-600 dark:text-gray-300 text-xs leading-relaxed">
+          <span className="block mb-0.5 font-semibold text-[10px] text-gray-400 dark:text-gray-500">موضوع الدعوى:</span>
           {item.caseSubject}
         </div>
       )}
@@ -103,32 +102,32 @@ function CaseCard({ item, onNavigate, onArchiveClick, onDeleteClick }) {
       {/* المحكمة والجلسة */}
       <div className="flex flex-wrap gap-3 mb-3">
         {item.court && (
-          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 text-xs">
             <MapPin size={11} className="text-gray-400 shrink-0" />
-            <span className="truncate max-w-[140px]">{item.court}</span>
+            <span className="max-w-[140px] truncate">{item.court}</span>
           </div>
         )}
         {item.nextSessionDate ? (
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 dark:text-orange-400">
+          <div className="flex items-center gap-1.5 font-semibold text-orange-600 dark:text-orange-400 text-xs">
             <Calendar size={11} className="shrink-0" />
             {new Date(item.nextSessionDate).toLocaleDateString('ar-SA', {
               month: 'short', day: 'numeric', year: 'numeric'
             })}
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 text-xs text-gray-400">
+          <div className="flex items-center gap-1.5 text-gray-400 text-xs">
             <Clock size={11} className="shrink-0" />
             <span>لم تحدد جلسة</span>
           </div>
         )}
       </div>
 
-      {/* الأزرار السفلية */}
-      <div className="flex items-center justify-between border-t border-gray-50 dark:border-gray-700/80 pt-3">
+      {/* زر تغيير الحالة */}
+      <div className="pt-3 border-gray-50 dark:border-gray-700/80 border-t">
         <StatusChanger caseId={item.id} current={item.status} onArchiveClick={onArchiveClick} />
         <button
           onClick={(e) => { e.stopPropagation(); onDeleteClick(item.id); }}
-          className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+          className="hover:bg-red-50 dark:hover:bg-red-900/20 p-1.5 rounded-lg text-red-400 hover:text-red-600 transition-colors"
           title="حذف القضية"
         >
           <Trash2 size={16} />
@@ -149,12 +148,12 @@ function EmptyState({ isArchive, hasSearch }) {
 
   return (
     <div className="py-16 text-center">
-      <div className="w-14 h-14 bg-gray-50 dark:bg-gray-700/50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+      <div className="flex justify-center items-center bg-gray-50 dark:bg-gray-700/50 mx-auto mb-3 rounded-2xl w-14 h-14">
         <Icon size={26} className="text-gray-300 dark:text-gray-600" />
       </div>
-      <p className="text-sm text-gray-500 dark:text-gray-400">{msg}</p>
+      <p className="text-gray-500 dark:text-gray-400 text-sm">{msg}</p>
       {!hasSearch && !isArchive && (
-        <Link to="/cases/new" className="inline-flex items-center gap-1.5 mt-3 text-sm font-medium text-orange-600 dark:text-orange-400 hover:underline">
+        <Link to="/cases/new" className="inline-flex items-center gap-1.5 mt-3 font-medium text-orange-600 dark:text-orange-400 text-sm hover:underline">
           <Plus size={15} /> إضافة أول قضية
         </Link>
       )}
@@ -309,10 +308,7 @@ export default function CasesList() {
   const [displayCount, setDisplayCount] = useState(7);
   const observerRef = useRef(null);
 
-  // إعادة تعيين العدد عند تغيير الفلاتر
-  useEffect(() => {
-    setDisplayCount(7);
-  }, [search, typeFilter, statusFilter]);
+  // يتم إعادة تعيين العدد الآن مباشرة عند تغيير الفلاتر (في حدث onChange و onClick لتجنب إعادة الرسم المتكرر)
 
   const displayedCases = useMemo(() => {
     return filtered.slice(0, displayCount);
@@ -345,13 +341,13 @@ export default function CasesList() {
   ───────────────────────────────────── */
   return (
     <>
-      <div className="mx-auto px-4 sm:px-6 md:px-8 max-w-7xl print:hidden">
+      <div className="print:hidden mx-auto px-4 sm:px-6 md:px-8 max-w-7xl">
 
         {/* ─── رأس الصفحة ─── */}
         <div className="flex justify-between items-center gap-4 mb-6">
           <div>
             <h1 className="font-bold text-gray-900 dark:text-white text-2xl sm:text-3xl">القضايا</h1>
-            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="mt-0.5 text-gray-500 dark:text-gray-400 text-xs sm:text-sm">
               {counts.active} نشطة · {counts.archived} مؤرشفة · {counts.total} إجمالي
             </p>
           </div>
@@ -368,8 +364,7 @@ export default function CasesList() {
 
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1.5 sm:gap-2 bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 active:scale-95 text-emerald-700 dark:text-emerald-400 text-sm font-medium
-              px-3 sm:px-4 py-2.5 rounded-xl border border-emerald-200 dark:border-emerald-500/30 shadow-sm transition-all shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:hover:bg-emerald-500/20 shadow-sm px-3 sm:px-4 py-2.5 border border-emerald-200 dark:border-emerald-500/30 rounded-xl font-medium text-emerald-700 dark:text-emerald-400 text-sm active:scale-95 transition-all shrink-0"
               title="استيراد قضايا من ملف إكسل"
             >
               <FileSpreadsheet size={18} />
@@ -378,8 +373,7 @@ export default function CasesList() {
 
             <button
               onClick={() => exportCasesToExcel(cases)}
-              className="flex items-center gap-1.5 sm:gap-2 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 active:scale-95 text-indigo-700 dark:text-indigo-400 text-sm font-medium
-              px-3 sm:px-4 py-2.5 rounded-xl border border-indigo-200 dark:border-indigo-500/30 shadow-sm transition-all shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 shadow-sm px-3 sm:px-4 py-2.5 border border-indigo-200 dark:border-indigo-500/30 rounded-xl font-medium text-indigo-700 dark:text-indigo-400 text-sm active:scale-95 transition-all shrink-0"
               title="تصدير السجل الكامل إلى إكسل"
             >
               <FileOutput size={18} />
@@ -388,8 +382,7 @@ export default function CasesList() {
 
             <button
               onClick={() => setPrintModalOpen(true)}
-              className="flex items-center gap-1.5 sm:gap-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-95 text-gray-700 dark:text-gray-200 text-sm font-medium
-              px-3 sm:px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm transition-all shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm px-3 sm:px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl font-medium text-gray-700 dark:text-gray-200 text-sm active:scale-95 transition-all shrink-0"
               title="طباعة (Ctrl + P)"
             >
               <Printer size={18} />
@@ -397,8 +390,7 @@ export default function CasesList() {
             </button>
             <Link
               to="/cases/new"
-              className="flex items-center gap-1.5 sm:gap-2 bg-orange-600 hover:bg-orange-700 active:scale-95 text-white text-sm font-medium
-              px-3 sm:px-5 py-2.5 rounded-xl shadow-sm shadow-orange-600/25 transition-all shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 bg-orange-600 hover:bg-orange-700 shadow-orange-600/25 shadow-sm px-3 sm:px-5 py-2.5 rounded-xl font-medium text-white text-sm active:scale-95 transition-all shrink-0"
             >
               <Plus size={18} />
               <span className="hidden sm:inline">إضافة قضية</span>
@@ -407,22 +399,20 @@ export default function CasesList() {
         </div>
 
         {/* ─── شريط بحث + فلاتر ─── */}
-        <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/80 rounded-2xl shadow-sm p-3 sm:p-4 mb-5">
+        <div className="bg-white dark:bg-gray-800 shadow-sm mb-5 p-3 sm:p-4 border border-gray-100 dark:border-gray-700/80 rounded-2xl">
           <div className="flex gap-2">
             {/* حقل البحث */}
             <div className="relative flex-1">
-              <Search size={16} className="absolute inset-y-0 my-auto start-3.5 text-gray-400 pointer-events-none" />
+              <Search size={16} className="absolute inset-y-0 my-auto text-gray-400 pointer-events-none start-3.5" />
               <input
                 type="text"
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={e => { setSearch(e.target.value); setDisplayCount(7); }}
                 placeholder="ابحث بالقضية، الموكل، الخصم..."
-                className="w-full ps-10 pe-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700
-                rounded-xl text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600
-                focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-colors"
+                className="bg-gray-50 dark:bg-gray-900/50 py-2.5 ps-10 pe-4 border border-gray-200 focus:border-orange-500 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 w-full text-gray-900 dark:text-white text-sm transition-colors placeholder-gray-400 dark:placeholder-gray-600"
               />
               {search && (
-                <button onClick={() => setSearch('')} className="absolute inset-y-0 my-auto end-3 text-gray-400 hover:text-gray-600">
+                <button onClick={() => { setSearch(''); setDisplayCount(7); }} className="absolute inset-y-0 my-auto text-gray-400 hover:text-gray-600 end-3">
                   <X size={15} />
                 </button>
               )}
@@ -440,18 +430,18 @@ export default function CasesList() {
               <Filter size={15} />
               <span className="hidden sm:inline">فلترة</span>
               {hasActiveFilter && (
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shrink-0" />
+                <span className="bg-orange-500 rounded-full w-1.5 h-1.5 shrink-0" />
               )}
             </button>
           </div>
 
           {/* لوحة الفلاتر — تنزلق عند الفتح */}
           {filtersOpen && (
-            <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/60 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 mt-3 pt-3 border-gray-100 dark:border-gray-700/60 border-t">
 
               {/* فلتر الحالة — Chip Tabs */}
               <div>
-                <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">الحالة</p>
+                <p className="mb-2 font-semibold text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">الحالة</p>
                 <div className="flex flex-wrap gap-1.5">
                   {[
                     { value: 'active', label: 'نشطة' },
@@ -460,7 +450,7 @@ export default function CasesList() {
                   ].map(opt => (
                     <button
                       key={opt.value}
-                      onClick={() => setStatusFilter(opt.value)}
+                      onClick={() => { setStatusFilter(opt.value); setDisplayCount(7); }}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all
                       ${statusFilter === opt.value
                           ? 'bg-orange-600 text-white border-orange-600 shadow-sm shadow-orange-600/20'
@@ -475,10 +465,10 @@ export default function CasesList() {
 
               {/* فلتر النوع — Chip Tabs */}
               <div>
-                <p className="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">نوع القضية</p>
+                <p className="mb-2 font-semibold text-[10px] text-gray-400 dark:text-gray-500 uppercase tracking-wider">نوع القضية</p>
                 <div className="flex flex-wrap gap-1.5">
                   <button
-                    onClick={() => setTypeFilter('')}
+                    onClick={() => { setTypeFilter(''); setDisplayCount(7); }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all
                     ${typeFilter === ''
                         ? 'bg-orange-600 text-white border-orange-600 shadow-sm shadow-orange-600/20'
@@ -490,7 +480,7 @@ export default function CasesList() {
                   {CASE_TYPES.map(t => (
                     <button
                       key={t}
-                      onClick={() => setTypeFilter(t)}
+                      onClick={() => { setTypeFilter(t); setDisplayCount(7); }}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all
                       ${typeFilter === t
                           ? 'bg-orange-600 text-white border-orange-600 shadow-sm shadow-orange-600/20'
@@ -505,10 +495,10 @@ export default function CasesList() {
 
               {/* زر مسح الفلاتر */}
               {hasActiveFilter && (
-                <div className="sm:col-span-2 flex justify-end">
+                <div className="flex justify-end sm:col-span-2">
                   <button
-                    onClick={() => { setTypeFilter(''); setStatusFilter('active'); }}
-                    className="text-xs text-red-400 hover:text-red-500 flex items-center gap-1 transition-colors"
+                    onClick={() => { setTypeFilter(''); setStatusFilter('active'); setDisplayCount(7); }}
+                    className="flex items-center gap-1 text-red-400 hover:text-red-500 text-xs transition-colors"
                   >
                     <X size={12} /> مسح الفلاتر
                   </button>
@@ -522,9 +512,9 @@ export default function CasesList() {
           جدول القضايا — للشاشات الكبيرة
       ══════════════════════════════════════════ */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <span className="w-9 h-9 border-2 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
-            <p className="text-sm text-gray-400 dark:text-gray-500">جاري تحميل القضايا...</p>
+          <div className="flex flex-col justify-center items-center gap-3 py-20">
+            <span className="border-2 border-orange-200 border-t-orange-500 rounded-full w-9 h-9 animate-spin" />
+            <p className="text-gray-400 dark:text-gray-500 text-sm">جاري تحميل القضايا...</p>
           </div>
         ) : filtered.length === 0 ? (
           /* فراغ */
@@ -532,11 +522,11 @@ export default function CasesList() {
         ) : (
           <>
             {/* ─── جدول (md فما فوق) ─── */}
-            <div className="hidden md:block bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700/80 rounded-2xl shadow-sm overflow-hidden">
+            <div className="hidden md:block bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700/80 rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-start">
                   <thead>
-                    <tr className="bg-gray-50/70 dark:bg-gray-900/40 border-b border-gray-100 dark:border-gray-700/60">
+                    <tr className="bg-gray-50/70 dark:bg-gray-900/40 border-gray-100 dark:border-gray-700/60 border-b">
                       {['تفاصيل القضية', 'الأطراف', 'موضوع الدعوى', 'المحكمة والجلسة', 'الحالة', ''].map((h, i) => (
                         <th key={i}
                           className={`px-5 py-3.5 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide
@@ -557,10 +547,10 @@ export default function CasesList() {
                         {/* اسم وتصنيف */}
                         <td className="px-5 py-4 max-w-[220px]">
                           <div className="flex flex-col items-start gap-1">
-                            <span className="bg-orange-50 border border-orange-200 dark:bg-orange-500/10 dark:border-orange-500/30 text-orange-700 dark:text-orange-400 px-2 py-0.5 rounded text-xs font-bold tracking-wide shadow-sm" title={item.title}>
+                            <span className="bg-orange-50 dark:bg-orange-500/10 shadow-sm px-2 py-0.5 border border-orange-200 dark:border-orange-500/30 rounded font-bold text-orange-700 dark:text-orange-400 text-xs tracking-wide" title={item.title}>
                               {item.title}
                             </span>
-                            <span className="text-gray-500 dark:text-gray-400 text-xs font-medium">{item.type}</span>
+                            <span className="font-medium text-gray-500 dark:text-gray-400 text-xs">{item.type}</span>
                           </div>
                         </td>
 
@@ -568,13 +558,13 @@ export default function CasesList() {
                         <td className="px-5 py-4">
                           <div className="flex flex-col gap-1.5 text-sm">
                             <span className="flex items-start gap-1.5">
-                              <span className="bg-emerald-500 rounded-full w-1.5 h-1.5 shrink-0 mt-1.5" />
-                              <span className="text-gray-800 dark:text-gray-200 leading-snug break-words max-w-[200px]" title={item.clientName}>{item.clientName}</span>
+                              <span className="bg-emerald-500 mt-1.5 rounded-full w-1.5 h-1.5 shrink-0" />
+                              <span className="max-w-[200px] text-gray-800 dark:text-gray-200 break-words leading-snug" title={item.clientName}>{item.clientName}</span>
                             </span>
                             {item.opponentName && (
                               <span className="flex items-start gap-1.5">
-                                <span className="bg-red-400 rounded-full w-1.5 h-1.5 shrink-0 mt-1.5" />
-                                <span className="text-gray-500 dark:text-gray-400 leading-snug break-words max-w-[200px]" title={item.opponentName}>{item.opponentName}</span>
+                                <span className="bg-red-400 mt-1.5 rounded-full w-1.5 h-1.5 shrink-0" />
+                                <span className="max-w-[200px] text-gray-500 dark:text-gray-400 break-words leading-snug" title={item.opponentName}>{item.opponentName}</span>
                               </span>
                             )}
                           </div>
@@ -582,7 +572,7 @@ export default function CasesList() {
 
                         {/* موضوع الدعوى */}
                         <td className="px-5 py-4">
-                          <div className="text-xs text-gray-600 dark:text-gray-300 leading-snug break-words max-w-[200px]">
+                          <div className="max-w-[200px] text-gray-600 dark:text-gray-300 text-xs break-words leading-snug">
                             {item.caseSubject || <span className="text-gray-400 italic">غير محدد</span>}
                           </div>
                         </td>
@@ -593,7 +583,7 @@ export default function CasesList() {
                             {item.court && (
                               <span className="flex items-center gap-1.5 text-gray-600 dark:text-gray-300">
                                 <MapPin size={12} className="text-gray-400 shrink-0" />
-                                <span className="truncate max-w-[150px]" title={item.court}>{item.court}</span>
+                                <span className="max-w-[150px] truncate" title={item.court}>{item.court}</span>
                               </span>
                             )}
                             {item.nextSessionDate ? (
@@ -616,16 +606,7 @@ export default function CasesList() {
 
                         {/* أزرار الإجراءات */}
                         <td className="px-4 py-4 text-end">
-                          <div className="flex items-center justify-end gap-2">
-                            <button
-                              onClick={(e) => { e.stopPropagation(); setCaseToDelete(item.id); }}
-                              className="p-1.5 text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
-                              title="حذف القضية"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                            <FolderOpen size={16} className="text-gray-300 group-hover:text-orange-400 dark:group-hover:text-orange-500 transition-colors" />
-                          </div>
+                          <FolderOpen size={16} className="ms-auto text-gray-300 dark:group-hover:text-orange-500 group-hover:text-orange-400 transition-colors" />
                         </td>
                       </tr>
                     ))}
@@ -635,7 +616,7 @@ export default function CasesList() {
             </div>
 
             {/* ─── بطاقات (أقل من md) ─── */}
-            <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="md:hidden gap-3 grid grid-cols-1 sm:grid-cols-2">
               {displayedCases.map(item => (
                 <CaseCard key={item.id} item={item} onNavigate={id => navigate(`/cases/${id}`)} onArchiveClick={setCaseToArchive} onDeleteClick={setCaseToDelete} />
               ))}
@@ -645,8 +626,8 @@ export default function CasesList() {
 
         {/* مؤشر التمرير وعداد القضايا */}
         {!loading && filtered.length > 0 && (
-          <div className="mt-6 mb-2 flex flex-col items-center justify-center">
-            <p className="text-xs text-gray-400 dark:text-gray-500 mb-4">
+          <div className="flex flex-col justify-center items-center mt-6 mb-2">
+            <p className="mb-4 text-gray-400 dark:text-gray-500 text-xs">
               عرض {displayedCases.length} من أصل {filtered.length} قضية
             </p>
             <div ref={observerRef} className="h-4" />
@@ -655,13 +636,13 @@ export default function CasesList() {
 
         {/* ─── مودال تأكيد الحذف ─── */}
         {caseToDelete && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-all">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mb-4 mx-auto">
+          <div className="z-[100] fixed inset-0 flex justify-center items-center bg-gray-900/60 backdrop-blur-sm p-4 transition-all">
+            <div className="bg-white dark:bg-gray-800 shadow-xl p-6 rounded-2xl w-full max-w-sm overflow-hidden animate-in duration-200 fade-in zoom-in-95">
+              <div className="flex justify-center items-center bg-red-100 dark:bg-red-500/20 mx-auto mb-4 rounded-full w-12 h-12">
                 <Trash2 className="text-red-600 dark:text-red-500" size={24} />
               </div>
-              <h3 className="text-lg font-bold text-center text-gray-900 dark:text-white mb-2">تأكيد الحذف</h3>
-              <p className="text-sm text-center text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+              <h3 className="mb-2 font-bold text-gray-900 dark:text-white text-lg text-center">تأكيد الحذف</h3>
+              <p className="mb-6 text-gray-500 dark:text-gray-400 text-sm text-center leading-relaxed">
                 هل أنت متأكد من رغبتك في حذف هذه القضية؟ هذا الإجراء لا يمكن التراجع عنه.
               </p>
 
@@ -669,17 +650,17 @@ export default function CasesList() {
                 <button
                   onClick={() => setCaseToDelete(null)}
                   disabled={isDeleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
+                  className="flex-1 hover:bg-gray-50 dark:hover:bg-gray-700/50 disabled:opacity-50 px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition-colors"
                 >
                   إلغاء
                 </button>
                 <button
                   onClick={handleDeleteConfirm}
                   disabled={isDeleting}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-sm font-medium text-white shadow-sm shadow-red-600/20 transition-all flex items-center justify-center disabled:opacity-50"
+                  className="flex flex-1 justify-center items-center bg-red-600 hover:bg-red-700 disabled:opacity-50 shadow-red-600/20 shadow-sm px-4 py-2.5 rounded-xl font-medium text-white text-sm active:scale-[0.98] transition-all"
                 >
                   {isDeleting ? (
-                    <span className="w-5 h-5 border-2 border-red-300 border-t-white rounded-full animate-spin" />
+                    <span className="border-2 border-red-300 border-t-white rounded-full w-5 h-5 animate-spin" />
                   ) : (
                     "حذف نهائي"
                   )}
@@ -691,13 +672,13 @@ export default function CasesList() {
 
         {/* ─── مودال تأكيد الأرشفة ─── */}
         {caseToArchive && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-all">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-200">
-              <div className="w-12 h-12 rounded-full bg-orange-100 dark:bg-orange-500/20 flex items-center justify-center mb-4 mx-auto">
+          <div className="z-[100] fixed inset-0 flex justify-center items-center bg-gray-900/60 backdrop-blur-sm p-4 transition-all">
+            <div className="bg-white dark:bg-gray-800 shadow-xl p-6 rounded-2xl w-full max-w-sm overflow-hidden animate-in duration-200 fade-in zoom-in-95">
+              <div className="flex justify-center items-center bg-orange-100 dark:bg-orange-500/20 mx-auto mb-4 rounded-full w-12 h-12">
                 <AlertTriangle className="text-orange-600 dark:text-orange-500" size={24} />
               </div>
-              <h3 className="text-lg font-bold text-center text-gray-900 dark:text-white mb-2">تأكيد الأرشفة</h3>
-              <p className="text-sm text-center text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+              <h3 className="mb-2 font-bold text-gray-900 dark:text-white text-lg text-center">تأكيد الأرشفة</h3>
+              <p className="mb-6 text-gray-500 dark:text-gray-400 text-sm text-center leading-relaxed">
                 هل أنت متأكد من رغبتك في أرشفة هذه القضية؟ سيتم تخصيص <strong>رقم أرشفة تسلسلي فريد</strong> لها ونقلها إلى سجل القضايا المؤرشفة.
               </p>
 
@@ -705,17 +686,17 @@ export default function CasesList() {
                 <button
                   onClick={() => setCaseToArchive(null)}
                   disabled={isArchiving}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
+                  className="flex-1 hover:bg-gray-50 dark:hover:bg-gray-700/50 disabled:opacity-50 px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition-colors"
                 >
                   إلغاء
                 </button>
                 <button
                   onClick={handleArchiveConfirm}
                   disabled={isArchiving}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-sm font-medium text-white shadow-sm shadow-orange-600/20 transition-all flex items-center justify-center disabled:opacity-50"
+                  className="flex flex-1 justify-center items-center bg-orange-600 hover:bg-orange-700 disabled:opacity-50 shadow-orange-600/20 shadow-sm px-4 py-2.5 rounded-xl font-medium text-white text-sm active:scale-[0.98] transition-all"
                 >
                   {isArchiving ? (
-                    <span className="w-5 h-5 border-2 border-orange-300 border-t-white rounded-full animate-spin" />
+                    <span className="border-2 border-orange-300 border-t-white rounded-full w-5 h-5 animate-spin" />
                   ) : (
                     'أرشفة القضية'
                   )}
@@ -727,10 +708,10 @@ export default function CasesList() {
 
         {/* ─── مودال خيارات الطباعة ─── */}
         {printModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-all">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-md overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-200">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+          <div className="z-[100] fixed inset-0 flex justify-center items-center bg-gray-900/60 backdrop-blur-sm p-4 transition-all">
+            <div className="bg-white dark:bg-gray-800 shadow-xl p-6 rounded-2xl w-full max-w-md overflow-hidden animate-in duration-200 fade-in zoom-in-95">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="flex items-center gap-2 font-bold text-gray-900 dark:text-white text-lg">
                   <Printer className="text-orange-600 dark:text-orange-500" size={20} />
                   خيارات الطباعة
                 </h3>
@@ -739,16 +720,16 @@ export default function CasesList() {
                 </button>
               </div>
               
-              <div className="mb-5 p-3.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl text-xs font-medium flex gap-3 items-start leading-relaxed border border-blue-100 dark:border-blue-800/30">
-                <Info className="shrink-0 mt-0.5" size={16} />
+              <div className="flex items-start gap-3 bg-blue-50 dark:bg-blue-900/20 mb-5 p-3.5 border border-blue-100 dark:border-blue-800/30 rounded-xl font-medium text-blue-700 dark:text-blue-300 text-xs leading-relaxed">
+                <Info className="mt-0.5 shrink-0" size={16} />
                 <p>
-                  <strong>تلميح:</strong> إذا كنت ترغب في حفظ التقرير كملف PDF عالي الجودة بدلاً من طباعته على الورق، اختر <span className="font-bold underline decoration-blue-300 underline-offset-2">حفظ بتنسيق PDF</span> (أو Save as PDF) من قائمة الطابعات في النافذة التالية.
+                  <strong>تلميح:</strong> إذا كنت ترغب في حفظ التقرير كملف PDF عالي الجودة بدلاً من طباعته على الورق، اختر <span className="font-bold decoration-blue-300 underline underline-offset-2">حفظ بتنسيق PDF</span> (أو Save as PDF) من قائمة الطابعات في النافذة التالية.
                 </p>
               </div>
 
               <div className="space-y-4 mb-8">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">نوع القضايا للطباعة</label>
+                  <label className="block mb-4 font-medium text-gray-700 dark:text-gray-300 text-sm">نوع القضايا للطباعة</label>
                   <div className="flex flex-wrap gap-2.5">
                     <button
                       onClick={() => setPrintTypeFilter([])}
@@ -789,7 +770,7 @@ export default function CasesList() {
               <div className="flex gap-3">
                 <button
                   onClick={() => setPrintModalOpen(false)}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  className="flex-1 hover:bg-gray-50 dark:hover:bg-gray-700/50 px-4 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition-colors"
                 >
                   إلغاء
                 </button>
@@ -798,7 +779,7 @@ export default function CasesList() {
                     setPrintModalOpen(false);
                     setTimeout(() => window.print(), 100);
                   }}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 active:scale-[0.98] text-sm font-medium text-white shadow-sm shadow-orange-600/20 transition-all flex items-center justify-center gap-2"
+                  className="flex flex-1 justify-center items-center gap-2 bg-orange-600 hover:bg-orange-700 shadow-orange-600/20 shadow-sm px-4 py-2.5 rounded-xl font-medium text-white text-sm active:scale-[0.98] transition-all"
                 >
                   <Printer size={16} />
                   تأكيد وطباعة

@@ -1,4 +1,4 @@
-import { Home, CheckSquare, Calendar, BarChart2, Settings, HelpCircle, LogOut, Menu, Users, Scale } from 'lucide-react';
+import { Home, Settings, LogOut, Menu, Users, Scale } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -41,10 +41,10 @@ export default function Sidebar({ isOpen, setIsOpen }) {
 
         {/* Logo Area */}
         <div className="flex items-center gap-3 px-6 border-gray-50/50 dark:border-gray-800 border-b h-20 transition-colors duration-300 shrink-0">
-          <div className="flex justify-center items-center bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-500/20 dark:to-orange-500/40 rounded-[14px] border border-orange-300/50 dark:border-orange-500/50 shrink-0 shadow-sm transition-all hover:scale-105">
-            <img src="/pwa-icon.png" alt="Logo" className="w-14 h-13 object-contain drop-shadow-md" />
+          <div className="flex justify-center items-center bg-gradient-to-br from-orange-100 dark:from-orange-500/20 to-orange-200 dark:to-orange-500/40 shadow-sm border border-orange-300/50 dark:border-orange-500/50 rounded-[14px] hover:scale-105 transition-all shrink-0">
+            <img src="/pwa-icon.png" alt="Logo" className="drop-shadow-md w-14 h-13 object-contain" />
           </div>
-          <button className="lg:hidden ms-auto text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 shrink-0" onClick={() => setIsOpen(false)}>
+          <button className="lg:hidden ms-auto outline-none focus:outline-none focus:ring-0 text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 shrink-0" onClick={() => setIsOpen(false)}>
             <Menu size={24} />
           </button>
         </div>
@@ -58,7 +58,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             <ul className="space-y-1">
               {menuItems.map((item, idx) => (
                 <li key={idx}>
-                  <Link to={item.path} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${item.active ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 font-semibold shadow-sm border border-orange-100/50 dark:border-orange-500/20' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200'}`}>
+                  <Link onClick={() => setIsOpen(false)} to={item.path} className={`outline-none focus:outline-none focus:ring-0 [-webkit-tap-highlight-color:transparent] flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${item.active ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-500 font-semibold shadow-sm border border-orange-100/50 dark:border-orange-500/20' : 'border border-transparent text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200'}`}>
                     <span className={`shrink-0 ${item.active ? 'text-orange-500' : 'text-gray-400 dark:text-gray-500'}`}>{item.icon}</span>
                     <span className="truncate">{item.name}</span>
                     {item.badge && (
@@ -78,14 +78,14 @@ export default function Sidebar({ isOpen, setIsOpen }) {
             <ul className="space-y-1">
               {generalItems.map((item, idx) => (
                 <li key={idx}>
-                  <Link to={item.path} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-3 py-2.5 rounded-xl text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 dark:text-gray-400 transition-colors">
+                  <Link onClick={() => setIsOpen(false)} to={item.path} className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 px-3 py-2.5 rounded-xl outline-none focus:outline-none focus:ring-0 [-webkit-tap-highlight-color:transparent] border border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-200 dark:text-gray-400 transition-colors">
                     <span className="text-gray-400 dark:text-gray-500 shrink-0">{item.icon}</span>
                     <span className="truncate">{item.name}</span>
                   </Link>
                 </li>
               ))}
               <li>
-                <button onClick={logout} className="flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2.5 rounded-xl w-full text-red-500 dark:text-red-400 transition-colors">
+                <button onClick={logout} className="flex items-center gap-3 hover:bg-red-50 dark:hover:bg-red-900/10 px-3 py-2.5 rounded-xl outline-none focus:outline-none focus:ring-0 [-webkit-tap-highlight-color:transparent] border border-transparent w-full text-red-500 dark:text-red-400 transition-colors">
                   <span className="shrink-0"><LogOut size={20} /></span>
                   <span className="truncate">تسجيل الخروج</span>
                 </button>
