@@ -3,9 +3,8 @@ import { db } from '../../config/firebase';
 import { collection, query, orderBy, onSnapshot, doc, runTransaction, deleteDoc } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Plus, Search, Scale, MapPin, Calendar, Clock,
-  ChevronDown, Archive, FolderOpen, Filter, X,
-  CheckCircle2, AlertTriangle, Printer, Download, Info, FileSpreadsheet, FileOutput
+  Plus, Search, Scale, MapPin, Calendar, Clock, Archive, FolderOpen, Filter, X,
+  CheckCircle2, AlertTriangle, Printer, Info, FileSpreadsheet, FileOutput, Trash2
 } from 'lucide-react';
 import { CASE_TYPES, CASE_STATUSES, STATUS_STYLES } from './casesConfig';
 import PrintableCasesTable from './PrintableCasesTable';
@@ -122,8 +121,8 @@ function CaseCard({ item, onNavigate, onArchiveClick, onDeleteClick }) {
         )}
       </div>
 
-      {/* زر تغيير الحالة */}
-      <div className="pt-3 border-gray-50 dark:border-gray-700/80 border-t">
+      {/* الأزرار السفلية */}
+      <div className="flex justify-between items-center pt-3 border-gray-50 dark:border-gray-700/80 border-t">
         <StatusChanger caseId={item.id} current={item.status} onArchiveClick={onArchiveClick} />
         <button
           onClick={(e) => { e.stopPropagation(); onDeleteClick(item.id); }}
@@ -308,7 +307,8 @@ export default function CasesList() {
   const [displayCount, setDisplayCount] = useState(7);
   const observerRef = useRef(null);
 
-  // يتم إعادة تعيين العدد الآن مباشرة عند تغيير الفلاتر (في حدث onChange و onClick لتجنب إعادة الرسم المتكرر)
+  // تمت إزالة useEffect الجانبي لتحديث displayCount
+  // للوقاية من الـ Double Rendering وبطء واجهة البحث
 
   const displayedCases = useMemo(() => {
     return filtered.slice(0, displayCount);
@@ -318,14 +318,14 @@ export default function CasesList() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          setDisplayCount(prev => Math.min(prev + 7, filtered.length));
+          setDisplayCount(prev => Math.min(prev + 15, filtered.length));
         }
       },
-      { threshold: 0.1, rootMargin: '100px' }
+      { threshold: 0.1, rootMargin: '200px' }
     );
     if (observerRef.current) observer.observe(observerRef.current);
     return () => observer.disconnect();
-  }, [filtered.length]);
+  }, [filtered.length, displayCount]); // تضاف displayCount لضمان تكرار الجلب إذا كان العنصر ما زال مرئياً
 
   const counts = useMemo(() => ({
     active: cases.filter(c => c.status === 'active').length,
@@ -606,7 +606,16 @@ export default function CasesList() {
 
                         {/* أزرار الإجراءات */}
                         <td className="px-4 py-4 text-end">
-                          <FolderOpen size={16} className="ms-auto text-gray-300 dark:group-hover:text-orange-500 group-hover:text-orange-400 transition-colors" />
+                          <div className="flex justify-end items-center gap-2">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setCaseToDelete(item.id); }}
+                              className="hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-red-400 hover:text-red-600 transition-all"
+                              title="حذف القضية"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                            <FolderOpen size={16} className="text-gray-300 dark:group-hover:text-orange-500 group-hover:text-orange-400 transition-colors" />
+                          </div>
                         </td>
                       </tr>
                     ))}
