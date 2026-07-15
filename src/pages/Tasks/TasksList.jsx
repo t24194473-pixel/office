@@ -405,6 +405,7 @@ function TaskModal({ isOpen, onClose, weekId, defaultDayOffset, cases, users, on
 
   useEffect(() => {
     if (isOpen) {
+      // eslint-disable-next-line
       setForm({
         title: editTask?.title || '',
         description: editTask?.description || '',
@@ -553,8 +554,27 @@ function TaskModal({ isOpen, onClose, weekId, defaultDayOffset, cases, users, on
 export default function TasksList() {
   const { user } = useAuthStore();
   
-  const [viewMode, setViewMode] = useState(() => localStorage.getItem('tasksViewModeV2') || 'tabs');
-  useEffect(() => { localStorage.setItem('tasksViewModeV2', viewMode); }, [viewMode]);
+  const [viewMode, setViewMode] = useState(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      return 'tabs'; // Tabs mode is now perfectly optimized for mobile (horizontal scroll bar)
+    }
+    return localStorage.getItem('tasksViewModeV2') || 'tabs';
+  });
+  
+  useEffect(() => { 
+    localStorage.setItem('tasksViewModeV2', viewMode); 
+  }, [viewMode]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      // Force 'tabs' mode on mobile as the user requested horizontal tabs
+      if (window.innerWidth < 1024 && viewMode !== 'tabs') {
+        setViewMode('tabs');
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [viewMode]);
 
   const [selectedTabDay, setSelectedTabDay] = useState(0);
 
@@ -566,7 +586,7 @@ export default function TasksList() {
     const month = date.toLocaleString('ar-EG', { month: 'long' });
     const year = date.getFullYear();
     const day = date.getDate();
-    let weekStr = "";
+    let weekStr;
     if (day <= 7) weekStr = "الأسبوع الأول";
     else if (day <= 14) weekStr = "الأسبوع الثاني";
     else if (day <= 21) weekStr = "الأسبوع الثالث";
@@ -720,10 +740,11 @@ export default function TasksList() {
     <div className="lg:z-50 lg:fixed lg:inset-0 lg:bg-gray-50 dark:lg:bg-gray-900 lg:p-4 lg:overflow-y-auto transition-colors duration-300">
       <div className="mx-auto px-4 sm:px-6 md:px-8 lg:px-0 pb-20 w-full">
       
-        <div className="flex sm:flex-row flex-col justify-between items-center gap-3 mb-3">
-          <h1 className="font-bold text-gray-900 dark:text-white text-lg sm:text-xl transition-colors">توزيع المهام اليومي</h1>
+        {/* Title and Top Actions - Hidden on mobile to save vertical space */}
+        <div className="hidden sm:flex flex-row justify-between items-center gap-3 mb-3">
+          <h1 className="font-bold text-gray-900 dark:text-white text-xl transition-colors">توزيع المهام اليومي</h1>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex bg-gray-200/50 dark:bg-gray-800 rounded-lg p-1 mr-2 border border-gray-100 dark:border-gray-700">
+            <div className="hidden lg:flex bg-gray-200/50 dark:bg-gray-800 rounded-lg p-1 mr-2 border border-gray-100 dark:border-gray-700">
               <button 
                 onClick={() => setViewMode('accordion')} 
                 className={`p-1.5 rounded-md transition-all ${viewMode === 'accordion' ? 'bg-white dark:bg-gray-600 shadow-sm text-orange-600 dark:text-orange-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
@@ -747,10 +768,10 @@ export default function TasksList() {
               </button>
             </div>
 
-            <Link to="/" className="hidden lg:flex items-center gap-1.5 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg font-bold text-[11px] text-gray-700 dark:text-gray-200 sm:text-xs transition-all">
+            <Link to="/" className="hidden lg:flex items-center gap-1.5 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg font-bold text-xs transition-all">
               <ChevronRight size={14} /> لوحة القيادة
             </Link>
-            <button onClick={() => setAddTaskDayOffset('general')} className="flex items-center gap-1.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 shadow-sm px-3 py-1.5 rounded-lg font-bold text-[11px] text-white dark:text-gray-900 sm:text-xs active:scale-95 transition-all">
+            <button onClick={() => setAddTaskDayOffset('general')} className="flex items-center gap-1.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 shadow-sm px-3 py-1.5 rounded-lg font-bold text-xs text-white dark:text-gray-900 active:scale-95 transition-all">
               <Plus size={14} /> إسناد مهمة
             </button>
           </div>
@@ -792,14 +813,15 @@ export default function TasksList() {
       ) : (
         <div className={viewMode === 'tabs' ? "flex flex-col lg:flex-row gap-6 items-start" : "flex flex-col gap-6"}>
           {viewMode === 'tabs' && (
-            <div className="w-full lg:w-64 shrink-0 flex flex-col gap-1.5 p-2 bg-gray-50/50 dark:bg-gray-800/20 border border-gray-100 dark:border-gray-700/50 rounded-2xl sticky top-24">
+            <div className="w-full lg:w-64 shrink-0 flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible overflow-y-hidden custom-scrollbar gap-1 sm:gap-2 lg:gap-1.5 p-1.5 sm:p-2 bg-gray-50/50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-700/50 rounded-xl lg:rounded-2xl lg:sticky lg:top-24 mb-1 lg:mb-0">
               <button 
                 onClick={() => setSelectedTabDay('all')}
-                className={`flex items-center justify-between w-full p-3 rounded-xl transition-all font-bold text-sm select-none ${selectedTabDay === 'all' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-sm' : 'hover:bg-white dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'}`}
+                className={`flex items-center justify-center lg:justify-between whitespace-nowrap shrink-0 lg:w-full px-3 py-1.5 sm:px-4 sm:py-2.5 lg:p-3 rounded-lg lg:rounded-xl transition-all font-bold text-xs sm:text-sm select-none border ${selectedTabDay === 'all' ? 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-sm border-orange-100 dark:border-orange-500/30 ring-1 ring-orange-500/20 lg:ring-0' : 'bg-white dark:bg-gray-800 lg:bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 border-gray-100 dark:border-gray-700/50'}`}
               >
-                كل الأيام
+                <span className="lg:hidden">الكل</span>
+                <span className="hidden lg:inline">كل الأيام</span>
               </button>
-              <div className="h-px w-full bg-gray-200 dark:bg-gray-700/50 my-1"></div>
+              <div className="hidden lg:block h-px w-full bg-gray-200 dark:bg-gray-700/50 my-1"></div>
               {daysGrid.map(d => {
                 const isSelected = selectedTabDay === d.value;
                 const dCompleted = d.tasks.filter(t => t.effectiveStatus === 'completed').length;
@@ -807,14 +829,14 @@ export default function TasksList() {
                   <button 
                     key={d.value}
                     onClick={() => setSelectedTabDay(d.value)}
-                    className={`flex items-center justify-between w-full p-3 rounded-xl transition-all select-none ${isSelected ? 'bg-white dark:bg-gray-800 shadow-sm border border-gray-100 dark:border-gray-700' : 'hover:bg-white/50 dark:hover:bg-gray-800/50 border border-transparent'}`}
+                    className={`flex items-center justify-center lg:justify-between whitespace-nowrap shrink-0 lg:w-full px-2.5 py-1.5 sm:px-4 sm:py-2.5 lg:p-3 rounded-lg lg:rounded-xl transition-all select-none border gap-1.5 sm:gap-2 ${isSelected ? 'bg-white dark:bg-gray-800 shadow-sm border-orange-200 dark:border-orange-500/30 ring-1 ring-orange-500/20 lg:ring-0' : 'bg-white dark:bg-gray-800 lg:bg-transparent hover:bg-white/50 dark:hover:bg-gray-800/50 border-gray-100 dark:border-gray-700/50'}`}
                   >
-                    <div className="flex items-center gap-2">
-                       <span className={`font-bold text-sm ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'} ${d.isPastDay && 'opacity-60'}`}>{d.label}</span>
-                       {d.isPastDay && <span className="bg-gray-200/70 dark:bg-gray-700/50 px-1.5 py-0.5 rounded text-[9px] text-gray-500">منقضي</span>}
+                    <div className="flex items-center gap-1 sm:gap-2">
+                       <span className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'} ${d.isPastDay && 'opacity-60'}`}>{d.label}</span>
+                       {d.isPastDay && <span className="hidden sm:inline bg-gray-200/70 dark:bg-gray-700/50 px-1.5 py-0.5 rounded text-[9px] text-gray-500">منقضي</span>}
                     </div>
                     {d.tasks.length > 0 && (
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm ${isSelected ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400' : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'}`}>
+                      <span className={`hidden lg:inline flex-[0_0_auto] text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm ${isSelected ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400' : 'bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400'}`}>
                         {dCompleted}/{d.tasks.length}
                       </span>
                     )}
@@ -858,27 +880,28 @@ export default function TasksList() {
                   onKeyDown={(e) => { if (isAccordion && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggleDayExpanded(dayItem.value); } }}
                   className={
                     isAccordion
-                      ? `w-full cursor-pointer flex flex-col md:flex-row md:items-center justify-between p-4 sm:p-5 transition-colors duration-200 ${isExpanded ? 'bg-orange-50/30 dark:bg-orange-500/10' : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'}`
-                      : `w-full flex flex-col md:flex-row md:items-center justify-between px-2 pt-2 pb-1 mb-1 bg-transparent border-b-2 border-gray-100 dark:border-gray-800`
+                      ? `w-full cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 transition-colors duration-200 ${isExpanded ? 'bg-orange-50/30 dark:bg-orange-500/10' : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700'}`
+                      : `w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2 pt-2 pb-1 mb-1 bg-transparent border-b-2 border-gray-100 dark:border-gray-800`
                   }
                 >
-                  <div className="flex items-center sm:items-center gap-4">
-                    <div className={`p-2.5 rounded-xl flex items-center justify-center transition-colors shrink-0 ${isExpanded ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'bg-gray-200/80 dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}>
-                      <CalendarIcon size={20} />
+                  <div className="flex items-start sm:items-center gap-3 sm:gap-4 w-full min-w-0">
+                    <div className={`mt-0.5 sm:mt-0 p-2 sm:p-2.5 rounded-xl flex items-center justify-center transition-colors shrink-0 ${isExpanded ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' : 'bg-gray-200/80 dark:bg-gray-800 text-gray-500 dark:text-gray-400'}`}>
+                      <CalendarIcon size={18} className="sm:w-5 sm:h-5" />
                     </div>
                     
-                    <div className="flex flex-wrap items-center gap-3 py-0.5">
-                      <div className="flex items-center gap-2">
-                        <h2 className={`text-xl font-bold whitespace-nowrap ${dayItem.isPastDay && !isExpanded ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>
+                    <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-3 py-0.5 w-full min-w-0">
+                      <div className="flex items-center flex-wrap gap-2">
+                        <h2 className={`text-lg sm:text-xl font-bold whitespace-nowrap ${dayItem.isPastDay && !isExpanded ? 'text-gray-400 dark:text-gray-500' : 'text-gray-900 dark:text-white'}`}>
                           يوم {dayItem.label}
                         </h2>
-                        {dayItem.isPastDay && <span className="bg-gray-200/70 dark:bg-gray-800 shadow-sm px-2 py-0.5 rounded-full font-bold text-[10px] text-gray-500 dark:text-gray-400 sm:text-xs whitespace-nowrap">منقضي</span>}
+                        {dayItem.isPastDay && <span className="bg-gray-200/70 dark:bg-gray-800 shadow-sm px-2 py-0.5 rounded-full font-bold text-[10px] text-gray-500 dark:text-gray-400 truncate">منقضي</span>}
+                        <span className="font-medium text-gray-500 text-xs sm:text-sm whitespace-nowrap">{dateStr}</span>
                       </div>
-                      <span className="font-medium text-gray-500 text-sm whitespace-nowrap">{dateStr}</span>
                       
+                      <div className="flex flex-wrap items-center gap-2">
                       {dayItem.tasks.length > 0 && (
                         <div className="flex items-center gap-2 bg-orange-50 dark:bg-orange-500/10 shadow-sm px-2 py-0.5 border border-orange-100 dark:border-orange-500/20 rounded-full">
-                          <span className="font-bold text-[11px] text-orange-700 dark:text-orange-400 sm:text-xs whitespace-nowrap">
+                          <span className="font-bold text-[10px] sm:text-[11px] text-orange-700 dark:text-orange-400 whitespace-nowrap">
                             {completedTasksCount} / {dayItem.tasks.length} منجزة
                           </span>
                           <div className="hidden sm:block bg-orange-200/60 dark:bg-orange-900/50 rounded-full w-12 sm:w-16 h-1.5 overflow-hidden">
@@ -891,26 +914,29 @@ export default function TasksList() {
                       {!isExpanded && lawyerStats.length > 0 && (
                         <>
                           <div className="hidden sm:block bg-gray-300 dark:bg-gray-700 mx-1 w-px h-4"></div>
+                          <div className="flex flex-wrap gap-1.5">
                           {lawyerStats.map(([name, count], idx) => (
-                            <span key={idx} className="flex items-center gap-1.5 bg-white dark:bg-gray-900 shadow-sm px-2 py-1 border border-gray-200 dark:border-gray-700/80 rounded-lg font-bold text-[10px] text-gray-600 dark:text-gray-300 sm:text-xs whitespace-nowrap">
-                              <Users size={12} className="text-gray-400" />
+                            <span key={idx} className="flex items-center gap-1.5 bg-white dark:bg-gray-900 shadow-sm px-2 py-1 border border-gray-200 dark:border-gray-700/80 rounded-lg font-bold text-[10px] text-gray-600 dark:text-gray-300 whitespace-nowrap">
+                              <Users size={12} className="text-gray-400 hidden sm:inline" />
                               {name} <span className="bg-orange-50 dark:bg-gray-800 px-1.5 rounded-md min-w-[18px] text-orange-600 dark:text-orange-400 text-center">{count}</span>
                             </span>
                           ))}
+                          </div>
                         </>
                       )}
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-3 shrink-0">
                     <button 
                       onClick={(e) => { e.stopPropagation(); setAddTaskDayOffset(dayItem.value); }} 
-                      className={`flex items-center gap-1.5 bg-orange-600 hover:bg-orange-500 shadow-sm active:scale-95 transition-colors text-white font-bold ${!isAccordion ? 'py-1 sm:py-1.5 px-3 sm:px-4 text-[11px] sm:text-xs rounded-lg' : 'px-3 sm:px-5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm'}`}
+                      className={`flex items-center gap-1.5 bg-orange-600 hover:bg-orange-500 shadow-sm active:scale-95 transition-colors text-white font-bold w-full sm:w-auto justify-center ${!isAccordion ? 'py-1 sm:py-1.5 px-3 sm:px-4 text-[11px] sm:text-xs rounded-lg' : 'px-4 py-2 rounded-xl text-xs sm:text-sm'}`}
                     >
-                      <Plus size={16} /> <span className="hidden sm:inline">أضف مهمة هنا</span>
+                      <Plus size={16} /> <span>أضف مهمة هنا</span>
                     </button>
                     {isAccordion && (
-                      <ChevronDown size={22} className={`text-gray-400 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-orange-500' : ''}`} />
+                      <ChevronDown size={22} className={`text-gray-400 transition-transform duration-300 shrink-0 ${isExpanded ? 'rotate-180 text-orange-500' : ''}`} />
                     )}
                   </div>
                 </div>
@@ -927,7 +953,7 @@ export default function TasksList() {
                         return (
                           <div 
                             key={task.id} 
-                            className={`group relative hover:z-50 focus-within:z-50 flex flex-col lg:flex-row lg:items-center justify-between border border-gray-100 dark:border-gray-700/60 rounded-2xl bg-white dark:bg-gray-800 hover:border-orange-200 dark:hover:border-orange-500/30 hover:bg-orange-50/20 dark:hover:bg-gray-800/80 hover:shadow-md transition-all duration-300 gap-3 py-3.5 px-4 shrink-0 shadow-sm`}
+                            className={`group relative hover:z-50 focus-within:z-50 flex flex-col lg:flex-row lg:items-center justify-between border border-gray-100 dark:border-gray-700/60 rounded-2xl ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50/70 dark:bg-gray-900/40'} hover:border-orange-200 dark:hover:border-orange-500/30 hover:bg-orange-50/20 dark:hover:bg-gray-800/80 hover:shadow-md transition-all duration-300 gap-3 py-3.5 px-4 shrink-0 shadow-sm`}
                           >
                             
                               <div className="relative flex flex-1 gap-3 sm:gap-4 w-full min-w-0 pt-0.5">
@@ -967,35 +993,37 @@ export default function TasksList() {
                               </div>
                             </div>
                             
-                            <div className="relative flex justify-between items-center gap-6 mt-2 md:mt-0 px-9 md:px-0 w-full md:w-auto shrink-0">
+                            <div className="relative flex flex-wrap md:flex-nowrap justify-between md:justify-end items-center gap-3 sm:gap-6 mt-3 pt-3 md:mt-0 md:pt-0 w-full md:w-auto shrink-0 border-t border-dashed border-gray-100 dark:border-gray-700/50 md:border-transparent">
                                 {/* المحرر المباشر لأسماء المحامين */}
-                                <InlineTaskLawyerEditor 
-                                  task={task} 
-                                  usersOptions={usersOptions} 
-                                  onTaskUpdated={(updatedTask) => setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t))} 
-                                />
+                                <div className="flex-1 min-w-[120px]">
+                                  <InlineTaskLawyerEditor 
+                                    task={task} 
+                                    usersOptions={usersOptions} 
+                                    onTaskUpdated={(updatedTask) => setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t))} 
+                                  />
+                                </div>
                                
-                               {/* قائمة تغيير الحالة خفية وبلا حدود */}
-                               <div className="flex items-center gap-1.5">
+                               {/* قائمة تغيير الحالة وأزرار الإجراءات */}
+                               <div className="flex items-center gap-1.5 shrink-0 justify-end">
                                  <button
                                     title="تعديل المهمة"
                                     onClick={() => setEditingTask({...task, dueDayOffset: dayItem.value})}
-                                    className="p-1.5 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors"
+                                    className="p-2 sm:p-1.5 rounded-lg text-gray-400 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-gray-800 transition-colors"
                                  >
-                                    <Edit2 size={16} />
+                                    <Edit2 size={16} className="w-4 h-4 sm:w-4 sm:h-4" />
                                  </button>
                                  <button
                                     title="حذف المهمة"
                                     onClick={() => setTaskToDelete(task)}
-                                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                    className="p-2 sm:p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                  >
-                                    <Trash2 size={16} />
+                                    <Trash2 size={16} className="w-4 h-4 sm:w-4 sm:h-4" />
                                  </button>
                                  <select 
                                      disabled={updatingTaskId === task.id}
                                      value={task.effectiveStatus}
                                      onChange={(e) => handleUpdateStatus(task.id, e.target.value)}
-                                     className={`text-xs font-bold px-3 py-1.5 rounded-lg border-2 border-transparent outline-none cursor-pointer transition-all ${conf.bg} ${conf.color} hover:opacity-80 disabled:opacity-50 appearance-none text-center min-w-[100px]`}
+                                     className={`text-xs font-bold px-2 sm:px-3 py-1.5 sm:py-1.5 rounded-lg border-2 border-transparent outline-none cursor-pointer transition-all ${conf.bg} ${conf.color} hover:opacity-80 disabled:opacity-50 appearance-none text-center min-w-[90px] sm:min-w-[100px]`}
                                    >
                                      <option value="not_executed" className="dark:bg-gray-800 text-gray-900 dark:text-gray-200">لم تنفذ</option>
                                      <option value="completed" className="dark:bg-gray-800 text-green-700 dark:text-green-400">مكتملة</option>
