@@ -1,4 +1,4 @@
-import { Home, Settings, LogOut, Menu, Users, Scale } from 'lucide-react';
+import { Home, Settings, LogOut, Menu, Users, Scale, CheckSquare } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -9,6 +9,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
   const menuItems = [
     { name: 'لوحة القيادة', icon: <Home size={20} />, path: '/', active: location.pathname === '/', badge: '' },
     { name: 'القضايا', icon: <Scale size={20} />, path: '/cases', active: location.pathname.startsWith('/cases'), badge: '' },
+    { name: 'المهام الأسبوعية', icon: <CheckSquare size={20} />, path: '/tasks', active: location.pathname.startsWith('/tasks'), badge: '' },
   ];
 
   // أضف قائمة الإدارة إذا كان المستخدم أدمن

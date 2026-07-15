@@ -2,7 +2,7 @@ import { useState } from "react";
 import Header from "../components/layout/Header";
 import Sidebar from "../components/layout/Sidebar";
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { Home, Scale, Bell, Menu } from "lucide-react";
+import { Home, Scale, Bell, Menu, CheckSquare } from "lucide-react";
 
 export default function Mainlayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -31,6 +31,10 @@ export default function Mainlayout() {
                     <Link to="/cases" className={`flex flex-col items-center gap-1 w-16 transition-colors ${location.pathname.startsWith('/cases') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 dark:text-gray-500'}`}>
                         <Scale size={22} className="mb-0.5" />
                         <span className={`text-[10px] ${location.pathname.startsWith('/cases') ? 'font-bold' : 'font-medium'}`}>القضايا</span>
+                    </Link>
+                    <Link to="/tasks" className={`flex flex-col items-center gap-1 w-16 transition-colors ${location.pathname.startsWith('/tasks') ? 'text-orange-600' : 'text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 dark:text-gray-500'}`}>
+                        <CheckSquare size={22} className="mb-0.5" />
+                        <span className={`text-[10px] ${location.pathname.startsWith('/tasks') ? 'font-bold' : 'font-medium'}`}>المهام</span>
                     </Link>
                     <Link to="#" className="relative flex flex-col items-center gap-1 w-16 text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 dark:text-gray-500 transition-colors">
                         <div className="relative">

@@ -8,6 +8,7 @@ import UsersRequests from "../pages/Admin/UsersRequests";
 import CasesList from "../pages/Cases/CasesList";
 import AddCase from "../pages/Cases/AddCase";
 import CaseDetail from "../pages/Cases/CaseDetail";
+import TasksList from "../pages/Tasks/TasksList";
 import ProtectedRoute from "./ProtectedRoute";
 
 export const router = createBrowserRouter([
@@ -26,6 +27,8 @@ export const router = createBrowserRouter([
                   { path: "cases",          element: <CasesList />  },
                   { path: "cases/new",      element: <AddCase />    },
                   { path: "cases/:caseId",  element: <CaseDetail /> },
+                  
+                  { path: "tasks",          element: <TasksList />  },
                   
                   // مسارات الإدارة (محمية بطبقة إضافية)
                   {
