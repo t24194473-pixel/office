@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { db } from '../../config/firebase';
-import { collection, query, orderBy, onSnapshot, doc, runTransaction } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, runTransaction, deleteDoc } from 'firebase/firestore';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Plus, Search, Scale, MapPin, Calendar, Clock,
   ChevronDown, Archive, FolderOpen, Filter, X,
-  CheckCircle2, AlertTriangle, Printer, Download, Info, FileSpreadsheet, FileOutput
+  CheckCircle2, AlertTriangle, Printer, Download, Info, FileSpreadsheet, FileOutput, Trash2
 } from 'lucide-react';
 import { CASE_TYPES, CASE_STATUSES, STATUS_STYLES } from './casesConfig';
 import PrintableCasesTable from './PrintableCasesTable';
@@ -58,7 +58,7 @@ function StatusChanger({ caseId, current, onArchiveClick }) {
 }
 
 /* ─── بطاقة قضية للجوال ─── */
-function CaseCard({ item, onNavigate, onArchiveClick }) {
+function CaseCard({ item, onNavigate, onArchiveClick, onDeleteClick }) {
   return (
     <div
       onClick={() => onNavigate(item.id)}
@@ -123,9 +123,16 @@ function CaseCard({ item, onNavigate, onArchiveClick }) {
         )}
       </div>
 
-      {/* زر تغيير الحالة */}
-      <div className="border-t border-gray-50 dark:border-gray-700/80 pt-3">
+      {/* الأزرار السفلية */}
+      <div className="flex items-center justify-between border-t border-gray-50 dark:border-gray-700/80 pt-3">
         <StatusChanger caseId={item.id} current={item.status} onArchiveClick={onArchiveClick} />
+        <button
+          onClick={(e) => { e.stopPropagation(); onDeleteClick(item.id); }}
+          className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+          title="حذف القضية"
+        >
+          <Trash2 size={16} />
+        </button>
       </div>
     </div>
   );
@@ -171,6 +178,9 @@ export default function CasesList() {
   const [caseToArchive, setCaseToArchive] = useState(null);
   const [isArchiving, setIsArchiving] = useState(false);
 
+  const [caseToDelete, setCaseToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [printTypeFilter, setPrintTypeFilter] = useState([]);
 
@@ -205,6 +215,20 @@ export default function CasesList() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  const handleDeleteConfirm = async () => {
+    if (!caseToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteDoc(doc(db, 'cases', caseToDelete));
+      setCaseToDelete(null);
+    } catch (err) {
+      console.error(err);
+      alert("حدث خطأ أثناء الحذف: " + err.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleArchiveConfirm = async () => {
     if (!caseToArchive) return;
@@ -590,9 +614,18 @@ export default function CasesList() {
                           <StatusChanger caseId={item.id} current={item.status} onArchiveClick={setCaseToArchive} />
                         </td>
 
-                        {/* سهم */}
+                        {/* أزرار الإجراءات */}
                         <td className="px-4 py-4 text-end">
-                          <FolderOpen size={16} className="text-gray-300 group-hover:text-orange-400 dark:group-hover:text-orange-500 transition-colors ms-auto" />
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setCaseToDelete(item.id); }}
+                              className="p-1.5 text-red-400 opacity-0 group-hover:opacity-100 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                              title="حذف القضية"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                            <FolderOpen size={16} className="text-gray-300 group-hover:text-orange-400 dark:group-hover:text-orange-500 transition-colors" />
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -604,7 +637,7 @@ export default function CasesList() {
             {/* ─── بطاقات (أقل من md) ─── */}
             <div className="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-3">
               {displayedCases.map(item => (
-                <CaseCard key={item.id} item={item} onNavigate={id => navigate(`/cases/${id}`)} onArchiveClick={setCaseToArchive} />
+                <CaseCard key={item.id} item={item} onNavigate={id => navigate(`/cases/${id}`)} onArchiveClick={setCaseToArchive} onDeleteClick={setCaseToDelete} />
               ))}
             </div>
           </>
@@ -617,6 +650,42 @@ export default function CasesList() {
               عرض {displayedCases.length} من أصل {filtered.length} قضية
             </p>
             <div ref={observerRef} className="h-4" />
+          </div>
+        )}
+
+        {/* ─── مودال تأكيد الحذف ─── */}
+        {caseToDelete && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm transition-all">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl w-full max-w-sm overflow-hidden p-6 animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center mb-4 mx-auto">
+                <Trash2 className="text-red-600 dark:text-red-500" size={24} />
+              </div>
+              <h3 className="text-lg font-bold text-center text-gray-900 dark:text-white mb-2">تأكيد الحذف</h3>
+              <p className="text-sm text-center text-gray-500 dark:text-gray-400 leading-relaxed mb-6">
+                هل أنت متأكد من رغبتك في حذف هذه القضية؟ هذا الإجراء لا يمكن التراجع عنه.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setCaseToDelete(null)}
+                  disabled={isDeleting}
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors disabled:opacity-50"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={isDeleting}
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 active:scale-[0.98] text-sm font-medium text-white shadow-sm shadow-red-600/20 transition-all flex items-center justify-center disabled:opacity-50"
+                >
+                  {isDeleting ? (
+                    <span className="w-5 h-5 border-2 border-red-300 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "حذف نهائي"
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
