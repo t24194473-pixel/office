@@ -576,7 +576,7 @@ export default function TasksList() {
     return () => window.removeEventListener('resize', handleResize);
   }, [viewMode]);
 
-  const [selectedTabDay, setSelectedTabDay] = useState(0);
+  const [selectedTabDay, setSelectedTabDay] = useState(() => (new Date().getDay() + 1) % 7);
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const weekId = getWeekId(currentDate);
@@ -625,7 +625,7 @@ export default function TasksList() {
   const [editingTask, setEditingTask] = useState(null);
   const [taskToDelete, setTaskToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [expandedDays, setExpandedDays] = useState([]); // جميع الأيام مغلقة افتراضياً
+  const [expandedDays, setExpandedDays] = useState(() => [(new Date().getDay() + 1) % 7]); // فتح اليوم الحالي افتراضياً
 
   const handleDeleteTask = async () => {
     if (!taskToDelete) return;
@@ -771,9 +771,6 @@ export default function TasksList() {
             <Link to="/" className="hidden lg:flex items-center gap-1.5 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 shadow-sm px-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-lg font-bold text-xs transition-all">
               <ChevronRight size={14} /> لوحة القيادة
             </Link>
-            <button onClick={() => setAddTaskDayOffset('general')} className="flex items-center gap-1.5 bg-gray-900 hover:bg-black dark:bg-white dark:hover:bg-gray-100 shadow-sm px-3 py-1.5 rounded-lg font-bold text-xs text-white dark:text-gray-900 active:scale-95 transition-all">
-              <Plus size={14} /> إسناد مهمة
-            </button>
           </div>
         </div>
 
